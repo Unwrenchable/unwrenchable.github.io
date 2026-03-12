@@ -209,14 +209,17 @@
             <h2 class="text-5xl mb-12 text-center neon-text">GET IN TOUCH</h2>
             <div class="max-w-md mx-auto bg-zinc-900 p-10 rounded-3xl">
                 <form id="contact-form" class="space-y-6">
-                    <input type="text" placeholder="YOUR NAME" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
-                    <input type="email" placeholder="EMAIL" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
-                    <textarea placeholder="PROJECT IDEA OR MESSAGE" rows="5" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
-                    <button type="submit" 
+                    <input type="text" name="name" placeholder="YOUR NAME" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
+                    <input type="email" name="email" placeholder="EMAIL" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
+                    <textarea name="message" placeholder="PROJECT IDEA OR MESSAGE" rows="5" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
+                    <button type="submit" id="contact-submit-btn"
                             class="w-full py-5 bg-lime-500 text-black font-bold hover:bg-lime-400 transition-all">
                         SEND MESSAGE
                     </button>
                 </form>
+                <div id="contact-success" class="hidden mt-4 p-4 border border-lime-500 text-center text-xs tracking-widest text-lime-400">
+                    ✓ MESSAGE RECEIVED — EXPECT A REPLY WITHIN 48 HOURS
+                </div>
             </div>
             <p class="text-center mt-8 text-xs opacity-50">Or reach out on GitHub or X (@AtomicFizzCaps).</p>
         </div>
@@ -383,11 +386,30 @@
             currentTab = n;
         }
 
-        // Contact form demo
+        // Contact form — saves messages to localStorage for admin review
         document.getElementById('contact-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            alert("Message Sent!\n\nYour message has been received.\nExpect a reply within 48 hours.");
-            this.reset();
+            const name    = (this.elements['name'].value    || '').trim();
+            const email   = (this.elements['email'].value   || '').trim();
+            const message = (this.elements['message'].value || '').trim();
+
+            if (!name || !message) return;
+
+            const msgs = JSON.parse(localStorage.getItem('admin_messages') || '[]');
+            msgs.push({ id: Date.now(), name, email, message, date: new Date().toISOString(), read: false });
+            localStorage.setItem('admin_messages', JSON.stringify(msgs));
+
+            const btn     = document.getElementById('contact-submit-btn');
+            const success = document.getElementById('contact-success');
+            btn.textContent = 'SENT ✓';
+            btn.disabled = true;
+            success.classList.remove('hidden');
+            setTimeout(() => {
+                btn.textContent = 'SEND MESSAGE';
+                btn.disabled = false;
+                success.classList.add('hidden');
+                this.reset();
+            }, 4000);
         });
 
         // KONAMI CODE EASTER EGG (↑ ↑ ↓ ↓ ← → ← → B A)
