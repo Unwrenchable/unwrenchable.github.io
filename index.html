@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unwrenchable | Digital Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        body { font-family: 'Press Start 2P', monospace; }
+        .neon-text { text-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d; }
+        .tab-active { border-bottom: 4px solid #00ff9d; color: #00ff9d; }
+        .hidden-easter { display: none; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-lime-400 min-h-screen overflow-x-hidden">
+    <!-- NAVBAR / TABS -->
+    <nav class="fixed top-0 left-0 right-0 bg-black/90 border-b border-lime-500 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-lime-500 rounded-full flex items-center justify-center text-black font-bold">U</div>
+                <span class="text-2xl tracking-widest neon-text">UNWRENCHABLE</span>
+            </div>
+            
+            <div class="flex gap-8 text-sm uppercase tracking-widest">
+                <button onclick="switchTab(0)" class="tab-btn tab-active" id="tab-0">HOME</button>
+                <button onclick="switchTab(1)" class="tab-btn" id="tab-1">SERVICES</button>
+                <button onclick="switchTab(2)" class="tab-btn" id="tab-2">PRICING</button>
+                <button onclick="switchTab(3)" class="tab-btn" id="tab-3">PORTFOLIO</button>
+                <button onclick="switchTab(4)" class="tab-btn" id="tab-4">ABOUT</button>
+                <button onclick="switchTab(5)" class="tab-btn" id="tab-5">CONTACT</button>
+            </div>
+            
+            <a href="https://github.com/Unwrenchable" target="_blank" 
+               class="px-5 py-2 border border-lime-500 hover:bg-lime-500 hover:text-black transition-all text-xs tracking-widest">
+                GITHUB
+            </a>
+        </div>
+    </nav>
+
+    <div class="pt-20 max-w-6xl mx-auto px-6 pb-24">
+
+        <!-- TAB CONTENTS -->
+        
+        <!-- HOME / HERO -->
+        <div id="content-0" class="tab-content">
+            <div class="min-h-[80vh] flex flex-col items-center justify-center text-center">
+                <h1 class="text-7xl md:text-8xl font-bold neon-text mb-6 tracking-widest">UNWRENCHABLE</h1>
+                <p class="text-2xl text-lime-300 mb-8">Digital Architect • Code Alchemist • Game Logic Architect</p>
+                <p class="max-w-lg text-lime-200/80 mb-12">I build fast, clean, modern digital experiences.<br>From one-page launches to full interactive systems — all under the radar.</p>
+                
+                <div class="flex gap-6">
+                    <button onclick="switchTab(2)" 
+                            class="px-10 py-4 bg-lime-500 text-black font-bold hover:scale-105 transition-all text-lg">
+                        GET STARTED UNDER $1K
+                    </button>
+                    <button onclick="switchTab(1)" 
+                            class="px-10 py-4 border-2 border-lime-500 hover:bg-lime-500/10 transition-all text-lg">
+                        SEE SERVICES
+                    </button>
+                </div>
+                
+                <div class="mt-20 text-xs opacity-50 flex gap-8">
+                    <div>JS • HTML • Node • Python • Game Logic</div>
+                    <div>Deployed on Render • Vercel • Netlify</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICES -->
+        <div id="content-1" class="tab-content hidden">
+            <h2 class="text-5xl mb-12 text-center neon-text">SERVICES</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Starter Package Highlight -->
+                <div class="bg-zinc-900 border border-lime-500 p-8 rounded-xl">
+                    <div class="uppercase text-xs tracking-widest mb-2">NEW → ENTRY POINT</div>
+                    <h3 class="text-3xl mb-4">LAUNCH PAD STARTER</h3>
+                    <p class="text-lime-300 text-xl mb-6">$750 – $950 one-time</p>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> 1–3 page micro-site or landing</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> Mobile-responsive + basic SEO</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> Contact form + analytics</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> GitHub handover + 1 week delivery</li>
+                    </ul>
+                    <button onclick="switchTab(2)" class="mt-8 w-full py-4 bg-lime-500 text-black font-bold">GET THIS PACKAGE →</button>
+                </div>
+
+                <!-- Full Services -->
+                <div class="space-y-8">
+                    <div class="bg-zinc-900 p-8 rounded-xl">
+                        <h4 class="text-xl mb-2">Website Design &amp; Management</h4>
+                        <p class="text-lime-200/70">Custom HTML/JS sites (like htowncountry.com style). Full management retainers available.</p>
+                    </div>
+                    <div class="bg-zinc-900 p-8 rounded-xl">
+                        <h4 class="text-xl mb-2">Full Stack Web &amp; Apps</h4>
+                        <p class="text-lime-200/70">React/Next.js, Node backends, interactive tools (fluffy-memory style).</p>
+                    </div>
+                    <div class="bg-zinc-900 p-8 rounded-xl">
+                        <h4 class="text-xl mb-2">Interactive / Game Logic Prototypes</h4>
+                        <p class="text-lime-200/70">JS-based games, puzzles, 9D-style mechanics.</p>
+                    </div>
+                    <div class="bg-zinc-900 p-8 rounded-xl">
+                        <h4 class="text-xl mb-2">Smart Contract &amp; Blockchain (on request)</h4>
+                        <p class="text-lime-200/70">Solidity work available when needed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRICING -->
+        <div id="content-2" class="tab-content hidden">
+            <h2 class="text-5xl mb-12 text-center neon-text">PRICING – TRANSPARENT &amp; COMPETITIVE</h2>
+            
+            <!-- Starter -->
+            <div class="bg-gradient-to-br from-lime-900 to-black border-2 border-lime-400 p-10 rounded-3xl mb-12">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="uppercase text-xs bg-lime-400 text-black px-4 py-1 rounded">STARTER PACKAGE</span>
+                        <h3 class="text-4xl mt-4">LAUNCH PAD</h3>
+                        <p class="text-5xl font-bold mt-2">$750 – $950</p>
+                    </div>
+                    <div class="text-right text-sm">
+                        1–3 pages<br>1–2 weeks<br>Perfect first step
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rest of tiers (condensed from previous convos) -->
+            <div class="grid md:grid-cols-3 gap-6 text-sm">
+                <div class="bg-zinc-900 p-8 rounded-2xl">
+                    <h4 class="text-xl mb-6">Website Design</h4>
+                    <ul class="space-y-4">
+                        <li><strong>Basic</strong> – $1,800–$2,800</li>
+                        <li><strong>Standard</strong> – $3,500–$5,500</li>
+                        <li><strong>Premium</strong> – $6,500–$9,500</li>
+                    </ul>
+                </div>
+                <div class="bg-zinc-900 p-8 rounded-2xl">
+                    <h4 class="text-xl mb-6">Full Stack Apps</h4>
+                    <ul class="space-y-4">
+                        <li><strong>Basic MVP</strong> – $5k–$8k</li>
+                        <li><strong>Standard</strong> – $9k–$16k</li>
+                        <li><strong>Premium</strong> – $18k–$30k+</li>
+                    </ul>
+                </div>
+                <div class="bg-zinc-900 p-8 rounded-2xl">
+                    <h4 class="text-xl mb-6">Game / Interactive</h4>
+                    <ul class="space-y-4">
+                        <li><strong>Blueprint</strong> – $2k–$3.5k</li>
+                        <li><strong>Prototype Build</strong> – $4.5k–$9k</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p class="text-center mt-12 text-xs opacity-70">50% deposit • Project-based • Free discovery call • All prices USD 2026</p>
+        </div>
+
+        <!-- PORTFOLIO -->
+        <div id="content-3" class="tab-content hidden">
+            <h2 class="text-5xl mb-12 text-center neon-text">PORTFOLIO</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <a href="https://htowncountry-com.onrender.com" target="_blank" class="group bg-zinc-900 p-8 rounded-2xl hover:border-lime-400 border border-transparent transition-all">
+                    <div class="text-lime-300 text-sm mb-2">LIVE SITE</div>
+                    <h4 class="text-2xl mb-3">htowncountry.com</h4>
+                    <p class="text-lime-200/70">Clean HTML landing + deployment on Render. Simple, fast, mobile-first.</p>
+                </a>
+                
+                <a href="https://github.com/Unwrenchable/fluffy-memory" target="_blank" class="group bg-zinc-900 p-8 rounded-2xl hover:border-lime-400 border border-transparent transition-all">
+                    <div class="text-lime-300 text-sm mb-2">INTERACTIVE TOOL</div>
+                    <h4 class="text-2xl mb-3">fluffy-memory</h4>
+                    <p class="text-lime-200/70">Medical aid finder web app – helps users locate insurance-accepted programs.</p>
+                </a>
+                
+                <a href="https://github.com/Unwrenchable/9dttt" target="_blank" class="group bg-zinc-900 p-8 rounded-2xl hover:border-lime-400 border border-transparent transition-all">
+                    <div class="text-lime-300 text-sm mb-2">GAME PROTOTYPE</div>
+                    <h4 class="text-2xl mb-3">9D Tic-Tac-Toe</h4>
+                    <p class="text-lime-200/70">Forked &amp; enhanced 9-dimensional game logic in pure JS. Pure fun + complex systems.</p>
+                </a>
+                
+                <a href="https://github.com/Unwrenchable/overseer-bot-ai" target="_blank" class="group bg-zinc-900 p-8 rounded-2xl hover:border-lime-400 border border-transparent transition-all">
+                    <div class="text-lime-300 text-sm mb-2">AUTOMATION</div>
+                    <h4 class="text-2xl mb-3">overseer-bot-ai</h4>
+                    <p class="text-lime-200/70">Python AI scripting &amp; bot framework. Clean automation logic.</p>
+                </a>
+            </div>
+            <p class="text-center mt-12 text-xs opacity-50">All code available on GitHub • More projects in private vaults</p>
+        </div>
+
+        <!-- ABOUT -->
+        <div id="content-4" class="tab-content hidden">
+            <h2 class="text-5xl mb-12 text-center neon-text">WHO IS UNWRENCHABLE?</h2>
+            <div class="max-w-2xl mx-auto text-lime-200/80 leading-relaxed text-lg">
+                <p class="mb-8">A low-profile developer building high-impact digital tools, websites, and interactive systems from the shadows.</p>
+                <p class="mb-8">No big agency overhead. No fluff. Just clean code, fast delivery, and real functionality.</p>
+                <p>Everything stays under the radar — until you discover the real gems hidden in the game.</p>
+            </div>
+        </div>
+
+        <!-- CONTACT -->
+        <div id="content-5" class="tab-content hidden">
+            <h2 class="text-5xl mb-12 text-center neon-text">GET IN TOUCH</h2>
+            <div class="max-w-md mx-auto bg-zinc-900 p-10 rounded-3xl">
+                <form id="contact-form" class="space-y-6">
+                    <input type="text" placeholder="YOUR NAME" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
+                    <input type="email" placeholder="EMAIL" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
+                    <textarea placeholder="PROJECT IDEA OR MESSAGE" rows="5" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
+                    <button type="submit" 
+                            class="w-full py-5 bg-lime-500 text-black font-bold hover:bg-lime-400 transition-all">
+                        SEND TRANSMISSION
+                    </button>
+                </form>
+            </div>
+            <p class="text-center mt-8 text-xs opacity-50">Or just open an issue on GitHub</p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-black border-t border-lime-500 py-12 text-center text-xs tracking-widest">
+        <p>© 2026 Unwrenchable • All systems operational</p>
+        <p class="mt-2 opacity-30">Built with pure HTML/JS • Deploy this exact file anywhere</p>
+    </footer>
+
+    <!-- EASTER EGG MODAL -->
+    <div id="easter-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[999]">
+        <div class="bg-zinc-900 border-4 border-lime-400 p-12 max-w-md text-center rounded-3xl">
+            <h3 class="text-4xl mb-6 neon-text">EASTER EGG UNLOCKED</h3>
+            <p class="text-lime-300 leading-relaxed mb-8">
+                You found the hidden transmission.<br><br>
+                My pride and joy — the real wasteland project — is still buried deep in the game.<br>
+                Keep exploring. The Vault-77 GPS awaits discovery.
+            </p>
+            <button onclick="closeEaster()" 
+                    class="px-8 py-3 border border-lime-400 hover:bg-lime-400 hover:text-black transition-all">
+                RETURN TO SURFACE
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Tab system
+        let currentTab = 0;
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+
+        function switchTab(n) {
+            tabs.forEach(t => t.classList.remove('tab-active'));
+            tabs[n].classList.add('tab-active');
+            
+            contents.forEach(c => c.classList.add('hidden'));
+            contents[n].classList.remove('hidden');
+            currentTab = n;
+        }
+
+        // Contact form demo
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert("TRANSMISSION SENT\n\nUnwrenchable has received your message.\nExpect a reply via GitHub within 48 hours.");
+            this.reset();
+        });
+
+        // KONAMI CODE EASTER EGG (↑ ↑ ↓ ↓ ← → ← → B A)
+        let konamiCode = [];
+        const secretCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.code);
+            if (konamiCode.length > secretCode.length) konamiCode.shift();
+            
+            if (JSON.stringify(konamiCode) === JSON.stringify(secretCode)) {
+                document.getElementById('easter-modal').classList.remove('hidden');
+                document.getElementById('easter-modal').classList.add('flex');
+                konamiCode = [];
+            }
+        });
+
+        function closeEaster() {
+            document.getElementById('easter-modal').classList.add('hidden');
+            document.getElementById('easter-modal').classList.remove('flex');
+        }
+
+        // Keyboard hint in console
+        console.log("%c👾 KONAMI CODE ENABLED: ↑↑↓↓←→←→BA to reveal secret wasteland message", "color:#00ff9d; font-family:monospace");
+
+        // Init
+        switchTab(0);
+    </script>
+</body>
+</html>
