@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unwrenchable | Digital Architect</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/tailwind.min.css">
+    <link rel="stylesheet" href="assets/css/press-start-2p.css">
+    <link rel="stylesheet" href="assets/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         body { font-family: 'Press Start 2P', monospace; }
         .neon-text { text-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d; }
         .tab-active { border-bottom: 4px solid #00ff9d; color: #00ff9d; }
@@ -239,11 +239,6 @@
     </div>
 
     <script>
-        // Tailwind script run
-        function initTailwind() {
-            // Already loaded via CDN
-        }
-
         // Tab system
         let currentTab = 0;
         const tabs = document.querySelectorAll('.tab-btn');
