@@ -7,11 +7,11 @@ Most work stays under the radar. Some echoes are live. Dig deep if you're huntin
 ## Quick Links
 
 - **Live Demos / Tools**
-  - <a href="https://reverse-phone-search.vercel.app/">Reverse Phone Search</a> — Lookup names, carriers, spam info from phone numbers
-  - <a href="https://9dttt.com">9DTTT.com</a> — Multi-dimensional Tic-Tac-Toe game portal
+  - [Reverse Phone Search](https://reverse-phone-search.vercel.app/) — Lookup names, carriers, spam info from phone numbers
+  - [9DTTT.com](https://9dttt.com) — Multi-dimensional Tic-Tac-Toe game portal
 
-- **GitHub**: <a href="https://github.com/Unwrenchable">github.com/Unwrenchable</a>
-- **X / Contact**: <a href="https://x.com/AtomicFizzCaps">@AtomicFizzCaps</a> — DMs open for collabs or gigs
+- **GitHub**: [github.com/Unwrenchable](https://github.com/Unwrenchable)
+- **X / Contact**: [@AtomicFizzCaps](https://x.com/AtomicFizzCaps) — DMs open for collabs or gigs
 
 ## Current Focus (March 2026)
 

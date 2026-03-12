@@ -12,6 +12,10 @@
         .neon-text { text-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d; }
         .tab-active { border-bottom: 4px solid #00ff9d; color: #00ff9d; }
         .hidden-easter { display: none; }
+        @media print {
+            body { background: #fff !important; color: #000 !important; }
+            nav, footer, #easter-modal, .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body class="bg-zinc-950 text-lime-400 min-h-screen overflow-x-hidden">
@@ -30,6 +34,7 @@
                 <button onclick="switchTab(3)" class="tab-btn" id="tab-3">PORTFOLIO</button>
                 <button onclick="switchTab(4)" class="tab-btn" id="tab-4">ABOUT</button>
                 <button onclick="switchTab(5)" class="tab-btn" id="tab-5">CONTACT</button>
+                <button onclick="switchTab(6)" class="tab-btn" id="tab-6">PAY</button>
             </div>
             
             <a href="https://github.com/Unwrenchable" target="_blank" 
@@ -214,6 +219,130 @@
             </div>
             <p class="text-center mt-8 text-xs opacity-50">Or just open an issue on GitHub</p>
         </div>
+
+        <!-- CHECKOUT / PAY -->
+        <div id="content-6" class="tab-content hidden">
+            <h2 class="text-5xl mb-4 text-center neon-text">CHECKOUT</h2>
+            <p class="text-center text-xs opacity-50 mb-12">Secure payments &bull; Card + Crypto &bull; Invoice included</p>
+
+            <div class="max-w-2xl mx-auto space-y-8">
+
+                <!-- Step 1: Select Service -->
+                <div class="bg-zinc-900 border border-lime-500 p-8 rounded-2xl">
+                    <div class="text-xs tracking-widest mb-1 opacity-50">STEP 1</div>
+                    <h3 class="text-xl mb-6">SELECT SERVICE</h3>
+                    <div class="space-y-2" id="package-list">
+                        <!-- rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Step 2: Payment Method Toggle -->
+                <div class="bg-zinc-900 p-8 rounded-2xl">
+                    <div class="text-xs tracking-widest mb-1 opacity-50">STEP 2</div>
+                    <h3 class="text-xl mb-6">PAYMENT METHOD</h3>
+                    <div class="flex gap-4">
+                        <button onclick="setPayMethod('card')" id="pay-card-btn"
+                                class="flex-1 py-4 border-2 border-lime-500 bg-lime-500 text-black font-bold transition-all text-sm">
+                            &#x1F4B3; CARD
+                        </button>
+                        <button onclick="setPayMethod('crypto')" id="pay-crypto-btn"
+                                class="flex-1 py-4 border-2 border-lime-500 transition-all text-sm">
+                            &#x20BF; CRYPTO
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Payment (Stripe) -->
+                <div id="card-panel" class="bg-zinc-900 p-8 rounded-2xl">
+                    <div class="text-xs tracking-widest mb-1 opacity-50">CARD PAYMENT VIA STRIPE</div>
+                    <p class="text-xs opacity-60 mb-6 mt-2">Secure checkout powered by Stripe. All major cards accepted &mdash; Visa, Mastercard, Amex.</p>
+                    <div id="stripe-btn-wrap">
+                        <!-- rendered by JS -->
+                    </div>
+                    <p class="text-xs opacity-40 mt-6">&#x1F512; 256-bit SSL &bull; Stripe handles all card data &bull; You never leave Stripe&rsquo;s secure page</p>
+                    <!-- SETUP INSTRUCTIONS (remove this comment block once configured):
+                         1. Create a Stripe account at stripe.com
+                         2. Go to Payment Links and create one link per service package
+                         3. Replace each stripeLink value in the PACKAGES array in the JS below
+                         Example: https://buy.stripe.com/test_abc123
+                    -->
+                </div>
+
+                <!-- Crypto Payment -->
+                <div id="crypto-panel" class="bg-zinc-900 p-8 rounded-2xl hidden">
+                    <div class="text-xs tracking-widest mb-1 opacity-50">PAY WITH CRYPTO</div>
+                    <p class="text-xs opacity-60 mt-2 mb-6">Send exact amount for selected package to one of the addresses below, then DM <a href="https://x.com/AtomicFizzCaps" target="_blank" class="text-lime-400 underline">@AtomicFizzCaps</a> with your TX hash to confirm.</p>
+
+                    <div class="space-y-4">
+                        <!-- BTC -->
+                        <div class="bg-black border border-lime-500/30 p-5 rounded-xl">
+                            <div class="text-xs tracking-widest mb-3 opacity-70">BITCOIN (BTC)</div>
+                            <div class="flex items-center gap-3">
+                                <code id="btc-addr" class="text-lime-300 text-xs flex-1 break-all leading-relaxed"></code>
+                                <button onclick="copyAddr('btc-addr', this)"
+                                        class="px-3 py-2 border border-lime-500 text-xs tracking-widest hover:bg-lime-500 hover:text-black transition-all shrink-0">
+                                    COPY
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ETH / USDC -->
+                        <div class="bg-black border border-lime-500/30 p-5 rounded-xl">
+                            <div class="text-xs tracking-widest mb-3 opacity-70">ETHEREUM / USDC (EVM)</div>
+                            <div class="flex items-center gap-3">
+                                <code id="eth-addr" class="text-lime-300 text-xs flex-1 break-all leading-relaxed"></code>
+                                <button onclick="copyAddr('eth-addr', this)"
+                                        class="px-3 py-2 border border-lime-500 text-xs tracking-widest hover:bg-lime-500 hover:text-black transition-all shrink-0">
+                                    COPY
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- USDC on Solana -->
+                        <div class="bg-black border border-lime-500/30 p-5 rounded-xl">
+                            <div class="text-xs tracking-widest mb-3 opacity-70">SOLANA / USDC-SOL</div>
+                            <div class="flex items-center gap-3">
+                                <code id="sol-addr" class="text-lime-300 text-xs flex-1 break-all leading-relaxed"></code>
+                                <button onclick="copyAddr('sol-addr', this)"
+                                        class="px-3 py-2 border border-lime-500 text-xs tracking-widest hover:bg-lime-500 hover:text-black transition-all shrink-0">
+                                    COPY
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="crypto-amount" class="mt-6 p-4 border border-lime-500/50 rounded-xl text-center text-sm">
+                        <!-- filled by JS -->
+                    </div>
+                    <!-- SETUP INSTRUCTIONS (remove once configured):
+                         Replace the placeholder addresses above (YOUR_BTC_ADDRESS_HERE etc.)
+                         with your actual wallet addresses in the WALLETS object in the JS below.
+                         For automated crypto invoicing consider: Coinbase Commerce (commerce.coinbase.com)
+                         or NOWPayments (nowpayments.io) — both have free tiers.
+                    -->
+                </div>
+
+                <!-- Invoice Generator -->
+                <div class="bg-zinc-900 border border-lime-500/30 p-8 rounded-2xl">
+                    <div class="text-xs tracking-widest mb-1 opacity-50">INVOICE</div>
+                    <h3 class="text-xl mb-6">GENERATE INVOICE</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="inv-name" placeholder="CLIENT NAME / COMPANY"
+                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                        <input type="email" id="inv-email" placeholder="CLIENT EMAIL"
+                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                        <input type="text" id="inv-project" placeholder="PROJECT NOTES (optional)"
+                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                    </div>
+                    <button onclick="openInvoice()"
+                            class="mt-6 w-full py-4 border border-lime-500 hover:bg-lime-500 hover:text-black transition-all text-sm font-bold tracking-widest">
+                        GENERATE &amp; PRINT INVOICE &#x2192;
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
     <!-- FOOTER -->
@@ -283,8 +412,248 @@
         // Keyboard hint in console
         console.log("%c👾 KONAMI CODE ENABLED: ↑↑↓↓←→←→BA to reveal secret wasteland message", "color:#00ff9d; font-family:monospace");
 
+        // ─── CHECKOUT / PAYMENT SYSTEM ───────────────────────────────────────
+
+        // !! CONFIGURE YOUR PAYMENT LINKS & WALLET ADDRESSES HERE !!
+
+        const PACKAGES = [
+            { id: 'starter',      label: 'Launch Pad Starter',          price: 750,   priceMax: 950,   stripeLink: 'https://buy.stripe.com/YOUR_LINK_STARTER' },
+            { id: 'web-basic',    label: 'Website Design \u2013 Basic',     price: 1800,  priceMax: 2800,  stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_BASIC' },
+            { id: 'web-std',      label: 'Website Design \u2013 Standard',  price: 3500,  priceMax: 5500,  stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_STD' },
+            { id: 'web-prem',     label: 'Website Design \u2013 Premium',   price: 6500,  priceMax: 9500,  stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_PREM' },
+            { id: 'app-basic',    label: 'Full Stack App \u2013 Basic MVP', price: 5000,  priceMax: 8000,  stripeLink: 'https://buy.stripe.com/YOUR_LINK_APP_BASIC' },
+            { id: 'app-std',      label: 'Full Stack App \u2013 Standard',  price: 9000,  priceMax: 16000, stripeLink: 'https://buy.stripe.com/YOUR_LINK_APP_STD' },
+            { id: 'game-bp',      label: 'Game / Interactive \u2013 Blueprint', price: 2000, priceMax: 3500, stripeLink: 'https://buy.stripe.com/YOUR_LINK_GAME' },
+        ];
+
+        // Replace these with your actual wallet addresses
+        const WALLETS = {
+            btc: 'YOUR_BTC_ADDRESS_HERE',
+            eth: 'YOUR_ETH_EVM_ADDRESS_HERE',
+            sol: 'YOUR_SOLANA_ADDRESS_HERE',
+        };
+
+        let selectedPkg = PACKAGES[0];
+        let payMethod = 'card';
+
+        function initCheckout() {
+            const list = document.getElementById('package-list');
+            list.innerHTML = PACKAGES.map((pkg, i) => `
+                <button onclick="selectPkg(${i})" id="pkg-btn-${i}"
+                        class="w-full text-left px-4 py-3 border transition-all text-xs ${i === 0 ? 'border-lime-500 bg-lime-500/10' : 'border-lime-500/30 hover:border-lime-500'}">
+                    <span class="flex justify-between gap-4">
+                        <span>${pkg.label}</span>
+                        <span class="text-lime-300 shrink-0">$${pkg.price.toLocaleString()}${pkg.priceMax ? '\u2013$' + pkg.priceMax.toLocaleString() : ''}</span>
+                    </span>
+                </button>`
+            ).join('');
+
+            document.getElementById('btc-addr').textContent = WALLETS.btc;
+            document.getElementById('eth-addr').textContent = WALLETS.eth;
+            document.getElementById('sol-addr').textContent = WALLETS.sol;
+
+            renderStripeBtn();
+            renderCryptoAmount();
+        }
+
+        function selectPkg(i) {
+            selectedPkg = PACKAGES[i];
+            PACKAGES.forEach((_, j) => {
+                const b = document.getElementById('pkg-btn-' + j);
+                b.className = 'w-full text-left px-4 py-3 border transition-all text-xs ' +
+                    (j === i ? 'border-lime-500 bg-lime-500/10' : 'border-lime-500/30 hover:border-lime-500');
+            });
+            renderStripeBtn();
+            renderCryptoAmount();
+        }
+
+        function renderStripeBtn() {
+            const wrap = document.getElementById('stripe-btn-wrap');
+            const isPlaceholder = selectedPkg.stripeLink.includes('YOUR_LINK');
+            if (isPlaceholder) {
+                wrap.innerHTML = `
+                    <div class="border border-lime-500/30 p-6 text-center rounded-xl">
+                        <p class="text-xs opacity-70 mb-2">Stripe Payment Link not yet configured.</p>
+                        <p class="text-xs opacity-50">Replace the <code>stripeLink</code> values in the PACKAGES array with your Stripe Payment Link URLs.</p>
+                        <p class="text-xs opacity-50 mt-2">Create them at <strong>dashboard.stripe.com &rarr; Payment Links</strong></p>
+                    </div>`;
+            } else {
+                wrap.innerHTML = `
+                    <a href="${selectedPkg.stripeLink}" target="_blank" rel="noopener"
+                       class="block w-full py-5 bg-lime-500 text-black font-bold text-center hover:bg-lime-400 transition-all text-sm tracking-widest">
+                        PAY WITH CARD &mdash; ${selectedPkg.label} &rarr;
+                    </a>
+                    <p class="text-xs opacity-50 text-center mt-3">Opens Stripe secure checkout in a new tab</p>`;
+            }
+        }
+
+        function renderCryptoAmount() {
+            const el = document.getElementById('crypto-amount');
+            const lo = '$' + selectedPkg.price.toLocaleString();
+            const hi = selectedPkg.priceMax ? '\u2013$' + selectedPkg.priceMax.toLocaleString() : '';
+            el.innerHTML = `<span class="opacity-60 text-xs tracking-widest">AMOUNT FOR SELECTED PACKAGE</span><br>
+                <span class="text-2xl font-bold text-lime-300 mt-2 inline-block">${lo}${hi}</span><br>
+                <span class="text-xs opacity-50 mt-1 inline-block">50% deposit to start &bull; remainder on delivery</span>`;
+        }
+
+        function setPayMethod(method) {
+            payMethod = method;
+            const cardPanel   = document.getElementById('card-panel');
+            const cryptoPanel = document.getElementById('crypto-panel');
+            const cardBtn     = document.getElementById('pay-card-btn');
+            const cryptoBtn   = document.getElementById('pay-crypto-btn');
+            const activeClass = 'flex-1 py-4 border-2 border-lime-500 bg-lime-500 text-black font-bold transition-all text-sm';
+            const inactiveClass = 'flex-1 py-4 border-2 border-lime-500 transition-all text-sm';
+            if (method === 'card') {
+                cardPanel.classList.remove('hidden');
+                cryptoPanel.classList.add('hidden');
+                cardBtn.className   = activeClass;
+                cryptoBtn.className = inactiveClass;
+            } else {
+                cardPanel.classList.add('hidden');
+                cryptoPanel.classList.remove('hidden');
+                cryptoBtn.className = activeClass;
+                cardBtn.className   = inactiveClass;
+            }
+        }
+
+        function copyAddr(id, btn) {
+            const text = document.getElementById(id).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = 'COPIED!';
+                btn.style.background = 'rgba(0,255,157,0.25)';
+                setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+            });
+        }
+
+        // ─── INVOICE GENERATOR ────────────────────────────────────────────────
+
+        // Invoice numbers start at 1001; persisted in localStorage across sessions
+        const INVOICE_START = 1000;
+        let invSeq = parseInt(localStorage.getItem('invSeq') || INVOICE_START, 10);
+
+        function openInvoice() {
+            const name    = document.getElementById('inv-name').value.trim()    || 'Client';
+            const email   = document.getElementById('inv-email').value.trim()   || '';
+            const project = document.getElementById('inv-project').value.trim() || '';
+            const pkg     = selectedPkg;
+            const lo      = pkg.price;
+            const hi      = pkg.priceMax || pkg.price;
+            const deposit = Math.round(lo * 0.5);
+            const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            invSeq++;
+            localStorage.setItem('invSeq', invSeq);
+            const invNum = 'INV-' + String(invSeq).padStart(4, '0');
+
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${invNum} \u2013 Unwrenchable</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; color: #111; background: #fff; padding: 48px; max-width: 800px; margin: auto; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 48px; padding-bottom: 24px; border-bottom: 3px solid #111; }
+  .brand h1 { font-size: 28px; font-weight: 900; letter-spacing: 4px; }
+  .brand p  { font-size: 11px; color: #555; margin-top: 4px; }
+  .inv-meta { text-align: right; }
+  .inv-meta .label { font-size: 28px; font-weight: 900; letter-spacing: 4px; }
+  .inv-meta p { font-size: 12px; color: #555; margin-top: 4px; }
+  .bill-to { margin-bottom: 40px; }
+  .bill-to .caption { font-size: 10px; letter-spacing: 3px; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+  .bill-to .client-name { font-size: 18px; font-weight: 700; }
+  .bill-to .client-email { font-size: 13px; color: #555; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+  th { text-align: left; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 10px 0; border-bottom: 2px solid #111; }
+  th:last-child { text-align: right; }
+  td { padding: 16px 0; font-size: 14px; border-bottom: 1px solid #eee; vertical-align: top; }
+  td:last-child { text-align: right; }
+  .note { font-size: 11px; color: #777; margin-top: 4px; }
+  tfoot td { border-bottom: none; border-top: 2px solid #111; padding-top: 14px; font-size: 14px; }
+  .deposit-row td { font-size: 13px; color: #555; padding-top: 6px; border-top: none; }
+  .total-row td { font-weight: 900; font-size: 20px; border-top: 2px solid #111; padding-top: 14px; }
+  .footer-note { margin-top: 48px; padding-top: 24px; border-top: 1px solid #ddd; font-size: 11px; color: #777; line-height: 1.8; }
+  .badge { display: inline-block; background: #a3e635; color: #000; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 3px 8px; font-weight: 700; margin-top: 6px; }
+  @media print {
+    body { padding: 24px; }
+    @page { margin: 1cm; }
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <h1>UNWRENCHABLE</h1>
+      <p>Digital Architect &bull; github.com/Unwrenchable</p>
+      <p>x.com/AtomicFizzCaps &bull; DMs open</p>
+    </div>
+    <div class="inv-meta">
+      <div class="label">INVOICE</div>
+      <p><strong>${invNum}</strong></p>
+      <p>Date: ${dateStr}</p>
+      <p>Due: Net-7 (50% deposit)</p>
+    </div>
+  </div>
+
+  <div class="bill-to">
+    <div class="caption">Bill To</div>
+    <div class="client-name">${escapeHtml(name)}</div>
+    ${email ? `<div class="client-email">${escapeHtml(email)}</div>` : ''}
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Amount (USD)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <strong>${escapeHtml(pkg.label)}</strong>
+          ${project ? `<div class="note">${escapeHtml(project)}</div>` : ''}
+        </td>
+        <td>$${lo.toLocaleString()}${hi !== lo ? '&ndash;$' + hi.toLocaleString() : ''}</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="deposit-row">
+        <td>50% Deposit Due Now</td>
+        <td>$${deposit.toLocaleString()}</td>
+      </tr>
+      <tr class="total-row">
+        <td>Total Project Value</td>
+        <td>$${lo.toLocaleString()}${hi !== lo ? '&ndash;$' + hi.toLocaleString() : ''}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="footer-note">
+    <p><strong>Payment Terms:</strong> 50% deposit required to begin &bull; Remainder due on delivery</p>
+    <p><strong>Accepted:</strong> Credit/Debit Card (Stripe) &bull; Bitcoin (BTC) &bull; Ethereum / USDC (EVM) &bull; Solana / USDC-SOL</p>
+    <p>Contact DM on X (@AtomicFizzCaps) or open a GitHub issue to confirm payment and begin work.</p>
+    <p style="margin-top:12px; font-size:10px; color:#bbb;">This invoice was generated by unwrenchable.github.io &bull; ${dateStr}</p>
+  </div>
+</body>
+</html>`;
+
+            const win = window.open('', '_blank', 'width=900,height=700');
+            win.document.write(html);
+            win.document.close();
+            win.focus();
+            setTimeout(() => win.print(), 600);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
         // Init
         switchTab(0);
+        initCheckout();
     </script>
 </body>
 </html>
