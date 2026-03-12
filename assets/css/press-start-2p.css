@@ -1,0 +1,8 @@
+/* Press Start 2P - self-hosted via @fontsource/press-start-2p */
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('../fonts/press-start-2p-latin-400-normal.woff2') format('woff2');
+}
