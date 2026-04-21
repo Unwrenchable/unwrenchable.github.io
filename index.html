@@ -14,6 +14,11 @@
         .neon-text { text-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d; }
         .tab-active { border-bottom: 4px solid #00ff9d; color: #00ff9d; }
         .hidden-easter { display: none; }
+        .package-btn { border: 1px solid rgba(132, 204, 22, 0.3); background: rgba(24, 24, 27, 0.9); border-radius: 0.75rem; }
+        .package-btn:hover { border-color: rgba(132, 204, 22, 0.8); }
+        .package-btn-active { border-color: #84cc16; background: rgba(132, 204, 22, 0.12); box-shadow: 0 0 0 1px rgba(132, 204, 22, 0.25) inset; }
+        .scope-chip { border: 1px solid rgba(132, 204, 22, 0.35); border-radius: 9999px; padding: 0.2rem 0.55rem; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
+        .scope-card { border: 1px solid rgba(132, 204, 22, 0.25); background: rgba(24, 24, 27, 0.9); border-radius: 1rem; padding: 1.5rem; }
 
         /* ── Responsive navigation ──────────────────────────────────────── */
         /* Mobile-first: show hamburger, hide desktop tabs & github link */
@@ -154,6 +159,7 @@
         <!-- SERVICES -->
         <div id="content-1" class="tab-content hidden">
             <h2 class="text-5xl mb-12 text-center neon-text">SERVICES</h2>
+            <p class="text-center text-xs opacity-70 mb-10 max-w-3xl mx-auto">Clear, staged builds so you can choose what fits now and scale the project as your goals expand.</p>
             
             <div class="grid md:grid-cols-2 gap-8">
                 <!-- Starter Package Highlight -->
@@ -166,7 +172,7 @@
                         <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> Looks great on phones &amp; tablets</li>
                         <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> Easy to find on Google</li>
                         <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> Contact form + visitor tracking</li>
-                        <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> Full file handover + delivered in 1 week</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check mt-1"></i> Scope map + delivery plan + full handover</li>
                     </ul>
                     <button onclick="switchTab(2)" class="mt-8 w-full py-4 bg-lime-500 text-black font-bold">GET THIS PACKAGE →</button>
                 </div>
@@ -195,7 +201,7 @@
 
         <!-- PRICING -->
         <div id="content-2" class="tab-content hidden">
-            <h2 class="text-5xl mb-12 text-center neon-text">PRICING – TRANSPARENT &amp; COMPETITIVE</h2>
+            <h2 class="text-5xl mb-12 text-center neon-text">PRICING &amp; PROJECT SCOPE</h2>
             
             <!-- Starter -->
             <div class="bg-gradient-to-br from-lime-900 to-black border-2 border-lime-400 p-10 rounded-3xl mb-12">
@@ -206,36 +212,52 @@
                         <p class="text-5xl font-bold mt-2">$750 – $950</p>
                     </div>
                     <div class="text-right text-sm">
-                        1–3 pages<br>1–2 weeks<br>Perfect first step
+                        1–3 pages<br>1–2 weeks<br>Best for first launch
                     </div>
                 </div>
             </div>
 
-            <!-- Rest of tiers (condensed from previous convos) -->
             <div class="grid md:grid-cols-3 gap-6 text-sm">
-                <div class="bg-zinc-900 p-8 rounded-2xl">
-                    <h4 class="text-xl mb-6">Website Design</h4>
+                <div class="scope-card">
+                    <h4 class="text-xl mb-3">Website Design</h4>
+                    <p class="text-xs opacity-70 mb-5">For businesses that need a strong online home and clear lead flow.</p>
                     <ul class="space-y-4">
-                        <li><strong>Basic</strong> – $1,800–$2,800</li>
-                        <li><strong>Standard</strong> – $3,500–$5,500</li>
-                        <li><strong>Premium</strong> – $6,500–$9,500</li>
+                        <li><strong>Basic</strong> – $1,800–$2,800<br><span class="opacity-70 text-xs">3–5 page site, launch-ready brand layout</span></li>
+                        <li><strong>Standard</strong> – $3,500–$5,500<br><span class="opacity-70 text-xs">6–10 pages, conversion flow, stronger SEO setup</span></li>
+                        <li><strong>Premium</strong> – $6,500–$9,500<br><span class="opacity-70 text-xs">Custom UX, integrations, long-term growth structure</span></li>
                     </ul>
                 </div>
-                <div class="bg-zinc-900 p-8 rounded-2xl">
-                    <h4 class="text-xl mb-6">Full Stack Apps</h4>
+                <div class="scope-card">
+                    <h4 class="text-xl mb-3">Full Stack Apps</h4>
+                    <p class="text-xs opacity-70 mb-5">For internal tools, client portals, automations, and custom workflows.</p>
                     <ul class="space-y-4">
-                        <li><strong>Starter App</strong> – $5k–$8k</li>
-                        <li><strong>Standard</strong> – $9k–$16k</li>
-                        <li><strong>Premium</strong> – $18k–$30k+</li>
+                        <li><strong>Starter App</strong> – $5k–$8k<br><span class="opacity-70 text-xs">MVP core features + auth + dashboard</span></li>
+                        <li><strong>Standard</strong> – $9k–$16k<br><span class="opacity-70 text-xs">Advanced workflows, external APIs, reporting</span></li>
+                        <li><strong>Premium</strong> – $18k–$30k+<br><span class="opacity-70 text-xs">Multi-role platform, scale architecture, automation layers</span></li>
                     </ul>
                 </div>
-                <div class="bg-zinc-900 p-8 rounded-2xl">
-                    <h4 class="text-xl mb-6">Game / Interactive</h4>
+                <div class="scope-card">
+                    <h4 class="text-xl mb-3">Game / Interactive</h4>
+                    <p class="text-xs opacity-70 mb-5">For experiential prototypes, gameplay loops, and branded interactions.</p>
                     <ul class="space-y-4">
-                        <li><strong>Blueprint</strong> – $2k–$3.5k</li>
-                        <li><strong>Prototype Build</strong> – $4.5k–$9k</li>
+                        <li><strong>Blueprint</strong> – $2k–$3.5k<br><span class="opacity-70 text-xs">Mechanic design + clickable concept</span></li>
+                        <li><strong>Prototype Build</strong> – $4.5k–$9k<br><span class="opacity-70 text-xs">Playable browser build + feedback-ready milestone</span></li>
                     </ul>
                 </div>
+            </div>
+
+            <div class="mt-8 bg-zinc-900/80 border border-lime-500/30 p-6 rounded-2xl">
+                <div class="text-xs tracking-widest opacity-60 mb-4">HOW PROJECTS SCALE</div>
+                <div class="grid md:grid-cols-4 gap-3 text-xs">
+                    <div class="scope-chip text-center">1. Discovery + Scope</div>
+                    <div class="scope-chip text-center">2. Build Sprint</div>
+                    <div class="scope-chip text-center">3. Review + Revisions</div>
+                    <div class="scope-chip text-center">4. Launch + Handover</div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-zinc-900/70 border border-lime-500/20 p-6 rounded-2xl text-xs leading-relaxed">
+                Need a custom scope? Share timeline, must-have features, and budget range to get a tailored package path before development starts.
             </div>
             
             <p class="text-center mt-12 text-xs opacity-70">50% upfront deposit • Fixed-price projects • Free discovery call • All prices USD 2026</p>
@@ -581,13 +603,13 @@
         // !! CONFIGURE YOUR PAYMENT LINKS & WALLET ADDRESSES HERE !!
 
         const PACKAGES = [
-            { id: 'starter',      label: 'Launch Pad Starter',          price: 750,   priceMax: 950,   stripeLink: 'https://buy.stripe.com/YOUR_LINK_STARTER' },
-            { id: 'web-basic',    label: 'Website Design \u2013 Basic',     price: 1800,  priceMax: 2800,  stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_BASIC' },
-            { id: 'web-std',      label: 'Website Design \u2013 Standard',  price: 3500,  priceMax: 5500,  stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_STD' },
-            { id: 'web-prem',     label: 'Website Design \u2013 Premium',   price: 6500,  priceMax: 9500,  stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_PREM' },
-            { id: 'app-basic',    label: 'Full Stack App \u2013 Starter',     price: 5000,  priceMax: 8000,  stripeLink: 'https://buy.stripe.com/YOUR_LINK_APP_BASIC' },
-            { id: 'app-std',      label: 'Full Stack App \u2013 Standard',  price: 9000,  priceMax: 16000, stripeLink: 'https://buy.stripe.com/YOUR_LINK_APP_STD' },
-            { id: 'game-bp',      label: 'Game / Interactive \u2013 Blueprint', price: 2000, priceMax: 3500, stripeLink: 'https://buy.stripe.com/YOUR_LINK_GAME' },
+            { id: 'starter', label: 'Launch Pad Starter', price: 750, priceMax: 950, stage: 'Stage 1 • Quick launch', scope: 'Best for first website launch and fast validation', timeline: 'Typical timeline: 1–2 weeks', stripeLink: 'https://buy.stripe.com/YOUR_LINK_STARTER' },
+            { id: 'web-basic', label: 'Website Design \u2013 Basic', price: 1800, priceMax: 2800, stage: 'Stage 2 • Foundation', scope: 'Best for growing local businesses and service brands', timeline: 'Typical timeline: 2–3 weeks', stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_BASIC' },
+            { id: 'web-std', label: 'Website Design \u2013 Standard', price: 3500, priceMax: 5500, stage: 'Stage 3 • Growth', scope: 'Best for lead generation and conversion-focused flows', timeline: 'Typical timeline: 3–5 weeks', stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_STD' },
+            { id: 'web-prem', label: 'Website Design \u2013 Premium', price: 6500, priceMax: 9500, stage: 'Stage 4 • Scale', scope: 'Best for custom UX, integrations, and premium positioning', timeline: 'Typical timeline: 5–8 weeks', stripeLink: 'https://buy.stripe.com/YOUR_LINK_WEB_PREM' },
+            { id: 'app-basic', label: 'Full Stack App \u2013 Starter', price: 5000, priceMax: 8000, stage: 'App MVP', scope: 'Best for launching a focused tool with core workflows', timeline: 'Typical timeline: 4–7 weeks', stripeLink: 'https://buy.stripe.com/YOUR_LINK_APP_BASIC' },
+            { id: 'app-std', label: 'Full Stack App \u2013 Standard', price: 9000, priceMax: 16000, stage: 'App Expansion', scope: 'Best for mature workflows, APIs, and team operations', timeline: 'Typical timeline: 7–12 weeks', stripeLink: 'https://buy.stripe.com/YOUR_LINK_APP_STD' },
+            { id: 'game-bp', label: 'Game / Interactive \u2013 Blueprint', price: 2000, priceMax: 3500, stage: 'Interactive Concept', scope: 'Best for prototype testing and concept validation', timeline: 'Typical timeline: 2–4 weeks', stripeLink: 'https://buy.stripe.com/YOUR_LINK_GAME' },
         ];
 
         // Replace these with your actual wallet addresses
@@ -604,9 +626,14 @@
             const list = document.getElementById('package-list');
             list.innerHTML = PACKAGES.map((pkg, i) => `
                 <button onclick="selectPkg(${i})" id="pkg-btn-${i}"
-                        class="w-full text-left px-4 py-3 border transition-all text-xs ${i === 0 ? 'border-lime-500 bg-lime-500/10' : 'border-lime-500/30 hover:border-lime-500'}">
-                    <span class="flex justify-between gap-4">
-                        <span>${pkg.label}</span>
+                        class="package-btn w-full text-left px-4 py-3 transition-all text-xs ${i === 0 ? 'package-btn-active' : ''}">
+                    <span class="flex justify-between gap-4 items-start">
+                        <span>
+                            <span class="block text-[10px] opacity-60 mb-1 tracking-widest">${pkg.stage}</span>
+                            <span class="block">${pkg.label}</span>
+                            <span class="block opacity-65 text-[10px] mt-1">${pkg.scope}</span>
+                            <span class="block opacity-50 text-[10px] mt-1">${pkg.timeline}</span>
+                        </span>
                         <span class="text-lime-300 shrink-0">$${pkg.price.toLocaleString()}${pkg.priceMax ? '\u2013$' + pkg.priceMax.toLocaleString() : ''}</span>
                     </span>
                 </button>`
@@ -624,8 +651,8 @@
             selectedPkg = PACKAGES[i];
             PACKAGES.forEach((_, j) => {
                 const b = document.getElementById('pkg-btn-' + j);
-                b.className = 'w-full text-left px-4 py-3 border transition-all text-xs ' +
-                    (j === i ? 'border-lime-500 bg-lime-500/10' : 'border-lime-500/30 hover:border-lime-500');
+                b.className = 'package-btn w-full text-left px-4 py-3 transition-all text-xs ' +
+                    (j === i ? 'package-btn-active' : '');
             });
             renderStripeBtn();
             renderCryptoAmount();
