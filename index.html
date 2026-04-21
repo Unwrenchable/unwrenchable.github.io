@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unwrenchable | Web Developer & App Builder</title>
+    <meta name="description" content="Unwrenchable builds fast, modern websites and full-stack apps. Freelance web developer specialising in pixel-perfect UI, e-commerce, and interactive experiences.">
+    <link rel="canonical" href="https://unwrenchable.github.io/">
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="https://unwrenchable.github.io/">
+    <meta property="og:title"       content="Unwrenchable | Web Developer & App Builder">
+    <meta property="og:description" content="Fast, modern websites and full-stack apps. Freelance web developer — let's build something.">
+    <meta property="og:image"       content="https://unwrenchable.github.io/assets/img/og-preview.png">
+    <!-- Twitter Card -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:site"        content="@AtomicFizzCaps">
+    <meta name="twitter:title"       content="Unwrenchable | Web Developer & App Builder">
+    <meta name="twitter:description" content="Fast, modern websites and full-stack apps. Freelance web developer — let's build something.">
+    <meta name="twitter:image"       content="https://unwrenchable.github.io/assets/img/og-preview.png">
+    <!-- Favicon (inline SVG — no external file needed) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000'/><text x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%2300ff9d'>U</text></svg>">
     <link rel="stylesheet" href="assets/css/tailwind.min.css">
     <link rel="stylesheet" href="assets/css/press-start-2p.css">
     <link rel="stylesheet" href="assets/css/all.min.css">
@@ -351,7 +367,8 @@
         <div id="content-5" class="tab-content hidden">
             <h2 class="text-5xl mb-12 text-center neon-text">GET IN TOUCH</h2>
             <div class="max-w-md mx-auto bg-zinc-900 p-10 rounded-3xl">
-                <form id="contact-form" class="space-y-6">
+                <form id="contact-form" class="space-y-6"
+                      action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
                     <input type="text" name="name" placeholder="YOUR NAME" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <input type="email" name="email" placeholder="EMAIL" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <textarea name="message" placeholder="PROJECT IDEA OR MESSAGE" rows="5" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
@@ -549,8 +566,8 @@
             icon.className = isOpen ? 'fa-solid fa-bars' : 'fa-solid fa-xmark';
         }
 
-        // Contact form — saves messages to localStorage for admin review
-        document.getElementById('contact-form').addEventListener('submit', function(e) {
+        // Contact form — POSTs to Formspree and saves a local copy to localStorage
+        document.getElementById('contact-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const name    = (this.elements['name'].value    || '').trim();
             const email   = (this.elements['email'].value   || '').trim();
@@ -558,14 +575,39 @@
 
             if (!name || !message) return;
 
+            const btn     = document.getElementById('contact-submit-btn');
+            const success = document.getElementById('contact-success');
+            btn.textContent = 'SENDING…';
+            btn.disabled = true;
+
+            // Send to Formspree (swap YOUR_FORM_ID after signing up at formspree.io)
+            const action = this.getAttribute('action');
+            const isConfigured = action && !action.includes('YOUR_FORM_ID');
+            if (isConfigured) {
+                try {
+                    const res = await fetch(action, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json' },
+                        body: new FormData(this),
+                    });
+                    if (!res.ok) {
+                        btn.textContent = 'ERROR — TRY AGAIN';
+                        btn.disabled = false;
+                        return;
+                    }
+                } catch (_) {
+                    btn.textContent = 'ERROR — TRY AGAIN';
+                    btn.disabled = false;
+                    return;
+                }
+            }
+
+            // Also persist locally for the admin panel
             const msgs = JSON.parse(localStorage.getItem('admin_messages') || '[]');
             msgs.push({ id: Date.now(), name, email, message, date: new Date().toISOString(), read: false });
             localStorage.setItem('admin_messages', JSON.stringify(msgs));
 
-            const btn     = document.getElementById('contact-submit-btn');
-            const success = document.getElementById('contact-success');
             btn.textContent = 'SENT ✓';
-            btn.disabled = true;
             success.classList.remove('hidden');
             setTimeout(() => {
                 btn.textContent = 'SEND MESSAGE';
