@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com https://unwrenchable-github-io.vercel.app; base-uri 'self'; form-action 'self'">
     <title>Unwrenchable | Web Developer & App Builder</title>
     <meta name="description" content="Unwrenchable builds fast, modern websites and full-stack apps. Freelance web developer specialising in pixel-perfect UI, e-commerce, and interactive experiences.">
     <link rel="canonical" href="https://unwrenchable.github.io/">
@@ -570,7 +570,7 @@
         // ── CONTACT FORM CONFIG ────────────────────────────────────────────────
         // The API URL below should be updated to your deployed Vercel function URL
         // e.g., https://your-app-name.vercel.app/api/contact
-        const CONTACT_API_URL = 'unwrenchable-github-io.vercel.app/contact';  // UPDATE THIS URL
+        const CONTACT_API_URL = 'https://unwrenchable-github-io.vercel.app/api/contact';
 
         // Contact form — submits to serverless API which creates GitHub Issue
         document.getElementById('contact-form').addEventListener('submit', async function(e) {
