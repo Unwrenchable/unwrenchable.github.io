@@ -373,7 +373,7 @@
                     <input type="email" name="email" placeholder="EMAIL" autocomplete="email" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <textarea name="message" placeholder="PROJECT IDEA OR MESSAGE" rows="5" autocomplete="off" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
                     <div>
-                        <label class="block text-xs tracking-widest opacity-70 mb-2">ATTACH A DOCUMENT <span class="opacity-50">(optional — max 5 MB)</span></label>
+                        <label class="block text-xs tracking-widest opacity-70 mb-2">ATTACH A DOCUMENT <span class="opacity-50">(optional — max 3 MB)</span></label>
                         <input type="file" name="attachment" id="contact-file"
                                accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.zip"
                                class="w-full bg-black border border-lime-500/50 p-3 text-lime-400/80 text-xs focus:outline-none file:mr-4 file:py-2 file:px-4 file:border file:border-lime-500 file:bg-black file:text-lime-400 file:text-xs file:cursor-pointer hover:file:bg-lime-500/10">
@@ -633,7 +633,7 @@
         // The API URL below should be updated to your deployed Vercel function URL
         // e.g., https://your-app-name.vercel.app/api/contact
         const CONTACT_API_URL = 'https://unwrenchable-github-io.vercel.app/api/contact';
-        const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // 5 MB
+        const MAX_ATTACHMENT_BYTES = 3 * 1024 * 1024; // 3 MB (base64 overhead + Vercel 4.5 MB body limit)
 
         // Contact form — submits to serverless API which creates GitHub Issue
         document.getElementById('contact-form').addEventListener('submit', async function(e) {
@@ -658,7 +658,7 @@
             if (fileInput.files && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 if (file.size > MAX_ATTACHMENT_BYTES) {
-                    error.textContent = 'FILE TOO LARGE — MAX 5 MB';
+                    error.textContent = 'FILE TOO LARGE — MAX 3 MB';
                     error.classList.remove('hidden');
                     btn.textContent = 'SEND MESSAGE';
                     btn.disabled = false;

@@ -1,10 +1,7 @@
 // Vercel API route for contact form submissions
 // Deploys to https://your-vercel-app.vercel.app/api/contact
 // Set GITHUB_PAT environment variable in Vercel dashboard
-
-// Ratio of Unicode replacement characters above which a decoded string is
-// considered binary rather than valid text content.
-const BINARY_DETECTION_THRESHOLD = 0.05;
+// The PAT needs: public_repo scope (same scope used for issue creation)
 
 const GITHUB_HEADERS = {
   'Accept': 'application/vnd.github+json',
@@ -12,19 +9,32 @@ const GITHUB_HEADERS = {
   'X-GitHub-Api-Version': '2022-11-28',
 };
 
-async function uploadGist(fileName, fileContent, pat) {
-  const gistRes = await fetch('https://api.github.com/gists', {
-    method: 'POST',
-    headers: { ...GITHUB_HEADERS, 'Authorization': `Bearer ${pat}` },
-    body: JSON.stringify({
-      description: `Contact form attachment: ${fileName}`,
-      public: false,
-      files: { [fileName]: { content: fileContent } },
-    }),
-  });
-  if (!gistRes.ok) return null;
-  const gist = await gistRes.json();
-  return gist.html_url || null;
+const REPO = 'Unwrenchable/unwrenchable.github.io';
+
+// Upload a file to the repository's uploads/ folder using the Contents API.
+// Returns the web URL of the uploaded file, or null on failure.
+async function uploadToRepo(fileName, fileDataBase64, pat) {
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const rand = Math.random().toString(36).slice(2, 8);
+  const path = `uploads/${Date.now()}-${rand}-${safeName}`;
+  const uploadRes = await fetch(
+    `https://api.github.com/repos/${REPO}/contents/${path}`,
+    {
+      method: 'PUT',
+      headers: { ...GITHUB_HEADERS, 'Authorization': `Bearer ${pat}` },
+      body: JSON.stringify({
+        message: `contact form attachment: ${fileName}`,
+        content: fileDataBase64,
+      }),
+    }
+  );
+  if (!uploadRes.ok) {
+    const errBody = await uploadRes.text().catch(() => '');
+    console.error('Contents API upload failed', uploadRes.status, errBody);
+    return null;
+  }
+  const result = await uploadRes.json();
+  return result.content?.html_url || null;
 }
 
 export default async function handler(req, res) {
@@ -38,31 +48,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Name and message are required' });
   }
 
-  // Handle optional file attachment — upload as a secret Gist
+  // Handle optional file attachment — upload to repo using Contents API
   let attachmentLine = '';
   if (file && file.name && file.data) {
     try {
-      // Decode base64 to text; for binary files store a note about the filename
-      let fileContent;
-      try {
-        fileContent = Buffer.from(file.data, 'base64').toString('utf8');
-        // Basic check: if result contains many replacement chars it's likely binary
-        if (fileContent.length > 0) {
-          const nullRatio = (fileContent.match(/\uFFFD/g) || []).length / fileContent.length;
-          if (nullRatio > BINARY_DETECTION_THRESHOLD) {
-            fileContent = `[Binary file — ${file.name} (${file.type || 'unknown type'})]`;
-          }
-        }
-      } catch {
-        fileContent = `[Could not decode file — ${file.name}]`;
-      }
-
-      const gistUrl = await uploadGist(file.name, fileContent, process.env.GITHUB_PAT);
-      attachmentLine = gistUrl
-        ? `\n\n**Attachment:** [${file.name}](${gistUrl})`
+      const fileUrl = await uploadToRepo(file.name, file.data, process.env.GITHUB_PAT);
+      attachmentLine = fileUrl
+        ? `\n\n**Attachment:** [${file.name}](${fileUrl})`
         : `\n\n**Attachment:** ${file.name} _(upload failed)_`;
     } catch (err) {
-      console.error('Gist upload error:', err);
+      console.error('File upload error:', err);
       attachmentLine = `\n\n**Attachment:** ${file.name} _(upload failed)_`;
     }
   }
