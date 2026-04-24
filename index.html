@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
     <title>Unwrenchable | Web Developer & App Builder</title>
     <meta name="description" content="Unwrenchable builds fast, modern websites and full-stack apps. Freelance web developer specialising in pixel-perfect UI, e-commerce, and interactive experiences.">
     <link rel="canonical" href="https://unwrenchable.github.io/">
@@ -380,6 +380,7 @@
                 <div id="contact-success" class="hidden mt-4 p-4 border border-lime-500 text-center text-xs tracking-widest text-lime-400">
                     ✓ MESSAGE RECEIVED — EXPECT A REPLY WITHIN 48 HOURS
                 </div>
+                <div id="contact-error" class="hidden mt-4 p-4 border border-red-500/70 text-center text-xs tracking-widest text-red-300"></div>
             </div>
             <p class="text-center mt-8 text-xs opacity-50">Or reach out on GitHub or X (@AtomicFizzCaps).</p>
         </div>
@@ -567,26 +568,11 @@
         }
 
         // ── CONTACT FORM CONFIG ────────────────────────────────────────────────
-        // The token below is injected at build time by the deploy workflow from
-        // the FORM_TOKEN repo secret (Settings → Secrets and variables → Actions).
-        // Never commit a real PAT here — keep the placeholder as-is in source.
-        const FORM_CONFIG = {
-            owner: 'Unwrenchable',
-            repo:  'unwrenchable.github.io',
-            token: 'YOUR_GITHUB_PAT_HERE',   // replaced at deploy time by CI
-        };
+        // The API URL below should be updated to your deployed Vercel function URL
+        // e.g., https://your-app-name.vercel.app/api/contact
+        const CONTACT_API_URL = 'https://your-app-name.vercel.app/api/contact';  // UPDATE THIS URL
 
-        // Contact form — creates a GitHub Issue labelled "contact-form"
-        // Disable the form gracefully if the deploy-time token injection never ran.
-        (function () {
-            if (FORM_CONFIG.token === 'YOUR_GITHUB_PAT_HERE') {
-                const btn = document.getElementById('contact-submit-btn');
-                btn.textContent = 'FORM TEMPORARILY UNAVAILABLE';
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        })();
-
+        // Contact form — submits to serverless API which creates GitHub Issue
         document.getElementById('contact-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const name    = (this.elements['name'].value    || '').trim();
@@ -597,61 +583,44 @@
 
             const btn     = document.getElementById('contact-submit-btn');
             const success = document.getElementById('contact-success');
+            const error   = document.getElementById('contact-error');
+            error.classList.add('hidden');
+            error.textContent = '';
             btn.textContent = 'SENDING…';
             btn.disabled = true;
 
-            const body = [
-                `**Name:** ${name}`,
-                email ? `**Email:** ${email}` : '',
-                `**Date:** ${new Date().toISOString()}`,
-                '',
-                '---',
-                '',
-                message,
-            ].filter(l => l !== '').join('\n');
-
             try {
-                const res = await fetch(
-                    `https://api.github.com/repos/${FORM_CONFIG.owner}/${FORM_CONFIG.repo}/issues`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Accept':        'application/vnd.github+json',
-                            'Authorization': `Bearer ${FORM_CONFIG.token}`,
-                            'Content-Type':  'application/json',
-                            'X-GitHub-Api-Version': '2022-11-28',
-                        },
-                        body: JSON.stringify({
-                            title:  `[Contact Form] ${name}`,
-                            body,
-                            labels: ['contact-form'],
-                        }),
-                    }
-                );
-                if (!res.ok) {
-                    if (res.status === 401 || res.status === 403) {
-                        btn.textContent = 'FORM TEMPORARILY UNAVAILABLE';
-                        btn.disabled = true;   // auth errors are not retriable by the user
-                    } else {
-                        btn.textContent = 'ERROR — TRY AGAIN';
+                const res = await fetch(CONTACT_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, message }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    btn.textContent = 'SENT ✓';
+                    success.classList.remove('hidden');
+                    setTimeout(() => {
+                        btn.textContent = 'SEND MESSAGE';
                         btn.disabled = false;
-                    }
-                    return;
+                        success.classList.add('hidden');
+                        this.reset();
+                    }, 4000);
+                } else {
+                    btn.textContent = 'ERROR — TRY AGAIN';
+                    btn.disabled = false;
+                    error.textContent = `SEND FAILED: ${data.error || 'Unknown error'}`;
+                    error.classList.remove('hidden');
                 }
-            } catch (_) {
+            } catch (err) {
                 btn.textContent = 'ERROR — TRY AGAIN';
                 btn.disabled = false;
-                return;
+                error.textContent = 'NETWORK ERROR. PLEASE TRY AGAIN.';
+                error.classList.remove('hidden');
             }
-
-            btn.textContent = 'SENT ✓';
-            success.classList.remove('hidden');
-            setTimeout(() => {
-                btn.textContent = 'SEND MESSAGE';
-                btn.disabled = false;
-                success.classList.add('hidden');
-                this.reset();
-            }, 4000);
         });
 
         // KONAMI CODE EASTER EGG (↑ ↑ ↓ ↓ ← → ← → B A)
