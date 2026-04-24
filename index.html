@@ -416,6 +416,10 @@
                                 class="flex-1 py-4 border-2 border-lime-500 bg-lime-500 text-black font-bold transition-all text-sm">
                             &#x1F4B3; CARD
                         </button>
+                        <button onclick="setPayMethod('venmo')" id="pay-venmo-btn"
+                                class="flex-1 py-4 border-2 border-lime-500 transition-all text-sm">
+                            &#x1F4B8; VENMO
+                        </button>
                         <button onclick="setPayMethod('crypto')" id="pay-crypto-btn"
                                 class="flex-1 py-4 border-2 border-lime-500 transition-all text-sm">
                             &#x20BF; CRYPTO
@@ -437,6 +441,19 @@
                          3. Replace each stripeLink value in the PACKAGES array in the JS below
                          Example: https://buy.stripe.com/test_abc123
                     -->
+                </div>
+
+                <!-- Venmo Payment -->
+                <div id="venmo-panel" class="bg-zinc-900 p-8 rounded-2xl hidden">
+                    <div class="text-xs tracking-widest mb-1 opacity-50">PAY WITH VENMO</div>
+                    <p class="text-xs opacity-60 mt-2 mb-6">Send the exact amount via Venmo to <strong class="text-lime-300">@Atomicfizzcaps</strong>, then message <a href="https://x.com/AtomicFizzCaps" target="_blank" class="text-lime-400 underline">@AtomicFizzCaps</a> on X with your payment confirmation to get started. Payments to Venmo are greatly appreciated and go toward developing <span class="text-lime-300">atomicfizzcaps.xyz</span>.</p>
+                    <a href="https://venmo.com/Atomicfizzcaps" target="_blank" rel="noopener"
+                       class="block w-full py-5 bg-[#008CFF] text-white font-bold text-center hover:opacity-90 transition-all text-sm tracking-widest rounded-xl">
+                        PAY ON VENMO &mdash; @Atomicfizzcaps &rarr;
+                    </a>
+                    <div id="venmo-amount" class="mt-6 p-4 border border-lime-500/50 rounded-xl text-center text-sm">
+                        <!-- filled by JS -->
+                    </div>
                 </div>
 
                 <!-- Crypto Payment -->
@@ -768,6 +785,7 @@
 
             renderStripeBtn();
             renderCryptoAmount();
+            renderVenmoAmount();
         }
 
         function selectPkg(i) {
@@ -779,6 +797,7 @@
             });
             renderStripeBtn();
             renderCryptoAmount();
+            renderVenmoAmount();
         }
 
         function renderStripeBtn() {
@@ -810,24 +829,41 @@
                 <span class="text-xs opacity-50 mt-1 inline-block">50% deposit to start &bull; remainder on delivery</span>`;
         }
 
+        function renderVenmoAmount() {
+            const el = document.getElementById('venmo-amount');
+            const lo = '$' + selectedPkg.price.toLocaleString();
+            const hi = selectedPkg.priceMax ? '\u2013$' + selectedPkg.priceMax.toLocaleString() : '';
+            el.innerHTML = `<span class="opacity-60 text-xs tracking-widest">AMOUNT FOR SELECTED PACKAGE</span><br>
+                <span class="text-2xl font-bold text-lime-300 mt-2 inline-block">${lo}${hi}</span><br>
+                <span class="text-xs opacity-50 mt-1 inline-block">50% deposit to start &bull; remainder on delivery</span>`;
+        }
+
         function setPayMethod(method) {
             payMethod = method;
             const cardPanel   = document.getElementById('card-panel');
+            const venmoPanel  = document.getElementById('venmo-panel');
             const cryptoPanel = document.getElementById('crypto-panel');
             const cardBtn     = document.getElementById('pay-card-btn');
+            const venmoBtn    = document.getElementById('pay-venmo-btn');
             const cryptoBtn   = document.getElementById('pay-crypto-btn');
             const activeClass = 'flex-1 py-4 border-2 border-lime-500 bg-lime-500 text-black font-bold transition-all text-sm';
             const inactiveClass = 'flex-1 py-4 border-2 border-lime-500 transition-all text-sm';
+            cardPanel.classList.add('hidden');
+            venmoPanel.classList.add('hidden');
+            cryptoPanel.classList.add('hidden');
+            cardBtn.className   = inactiveClass;
+            venmoBtn.className  = inactiveClass;
+            cryptoBtn.className = inactiveClass;
             if (method === 'card') {
                 cardPanel.classList.remove('hidden');
-                cryptoPanel.classList.add('hidden');
-                cardBtn.className   = activeClass;
-                cryptoBtn.className = inactiveClass;
+                cardBtn.className = activeClass;
+            } else if (method === 'venmo') {
+                venmoPanel.classList.remove('hidden');
+                venmoBtn.className = activeClass;
+                renderVenmoAmount();
             } else {
-                cardPanel.classList.add('hidden');
                 cryptoPanel.classList.remove('hidden');
                 cryptoBtn.className = activeClass;
-                cardBtn.className   = inactiveClass;
             }
         }
 
