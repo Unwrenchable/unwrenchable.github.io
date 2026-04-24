@@ -368,7 +368,7 @@
             <h2 class="text-5xl mb-12 text-center neon-text">GET IN TOUCH</h2>
             <div class="max-w-md mx-auto bg-zinc-900 p-10 rounded-3xl">
                 <form id="contact-form" class="space-y-6"
-                      action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                      action="https://formspree.io/f/mlgaaqew" method="POST">
                     <input type="text" name="name" placeholder="YOUR NAME" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <input type="email" name="email" placeholder="EMAIL" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <textarea name="message" placeholder="PROJECT IDEA OR MESSAGE" rows="5" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
@@ -580,9 +580,8 @@
             btn.textContent = 'SENDING…';
             btn.disabled = true;
 
-            // Send to Formspree (swap YOUR_FORM_ID after signing up at formspree.io)
             const action = this.getAttribute('action');
-            const isConfigured = action && !action.includes('YOUR_FORM_ID');
+            const isConfigured = !!action;
             if (isConfigured) {
                 try {
                     const res = await fetch(action, {
