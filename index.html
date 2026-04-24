@@ -480,17 +480,23 @@
                                 </button>
                             </div>
                         </div>
+
+                        <!-- XRP -->
+                        <div class="bg-black border border-lime-500/30 p-5 rounded-xl">
+                            <div class="text-xs tracking-widest mb-3 opacity-70">XRP (XRP Ledger)</div>
+                            <div class="flex items-center gap-3">
+                                <code id="xrp-addr" class="text-lime-300 text-xs flex-1 break-all leading-relaxed"></code>
+                                <button onclick="copyAddr('xrp-addr', this)"
+                                        class="px-3 py-2 border border-lime-500 text-xs tracking-widest hover:bg-lime-500 hover:text-black transition-all shrink-0">
+                                    COPY
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="crypto-amount" class="mt-6 p-4 border border-lime-500/50 rounded-xl text-center text-sm">
                         <!-- filled by JS -->
                     </div>
-                    <!-- SETUP INSTRUCTIONS (remove once configured):
-                         Replace the placeholder addresses above (YOUR_BTC_ADDRESS_HERE etc.)
-                         with your actual wallet addresses in the WALLETS object in the JS below.
-                         For automated crypto invoicing consider: Coinbase Commerce (commerce.coinbase.com)
-                         or NOWPayments (nowpayments.io) — both have free tiers.
-                    -->
                 </div>
 
                 <!-- Invoice Generator -->
@@ -728,11 +734,11 @@
             { id: 'game-bp', label: 'Game / Interactive \u2013 Blueprint', price: 2000, priceMax: 3500, stage: 'Interactive Concept', scope: 'Best for prototype testing and concept validation', timeline: 'Typical timeline: 2–4 weeks', stripeLink: 'https://buy.stripe.com/YOUR_LINK_GAME' },
         ];
 
-        // Replace these with your actual wallet addresses
         const WALLETS = {
-            btc: 'YOUR_BTC_ADDRESS_HERE',
-            eth: 'YOUR_ETH_EVM_ADDRESS_HERE',
-            sol: 'YOUR_SOLANA_ADDRESS_HERE',
+            btc: 'bc1qhlway8mt6nx303kd5j3670tttuph35mzhe70w4',
+            eth: '0xb05DDBeD65b12Ec8B65D9B175Bee74C84be9A607',
+            sol: 'ECPn1jChaNQdU65rhAkADAoXDbF2NopZJ3UVsmhFApDu',
+            xrp: 'YOUR_XRP_ADDRESS_HERE',
         };
 
         let selectedPkg = PACKAGES[0];
@@ -758,6 +764,7 @@
             document.getElementById('btc-addr').textContent = WALLETS.btc;
             document.getElementById('eth-addr').textContent = WALLETS.eth;
             document.getElementById('sol-addr').textContent = WALLETS.sol;
+            document.getElementById('xrp-addr').textContent = WALLETS.xrp;
 
             renderStripeBtn();
             renderCryptoAmount();
