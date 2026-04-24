@@ -1,0 +1,71 @@
+# Builds and deploys the site to GitHub Pages.
+#
+# At build time, the placeholder token in index.html is replaced with the
+# FORM_TOKEN repo secret so the real PAT is never committed to source.
+#
+# Required repo secret (Settings → Secrets and variables → Actions):
+#   FORM_TOKEN  — GitHub fine-grained PAT with Issues: Read & Write on this
+#                 repo only.  Generate at:
+#                 https://github.com/settings/tokens?type=beta
+#
+# After adding this workflow, go to Settings → Pages and change the
+# Source to "GitHub Actions" (instead of "Deploy from a branch").
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate FORM_TOKEN secret is set
+        env:
+          FORM_TOKEN: ${{ secrets.FORM_TOKEN }}
+        run: |
+          if [ -z "${FORM_TOKEN}" ]; then
+            echo "::error::FORM_TOKEN secret is not set. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Inject FORM_TOKEN into index.html
+        env:
+          FORM_TOKEN: ${{ secrets.FORM_TOKEN }}
+        run: |
+          sed -i "s|YOUR_GITHUB_PAT_HERE|${FORM_TOKEN}|g" index.html
+
+      - name: Assemble site artifact (exclude VCS / workflow files)
+        run: |
+          mkdir -p /tmp/site
+          rsync -a --exclude='.git' --exclude='.github' . /tmp/site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

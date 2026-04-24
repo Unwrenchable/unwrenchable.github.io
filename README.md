@@ -80,7 +80,8 @@ Last update: March 2026
 
 ## Contact Form Setup (one-time)
 
-The contact form on the site submits directly to **GitHub Issues** — no third-party services.
+The contact form on the site submits directly to **GitHub Issues** — no third-party services.  
+The PAT (API token) is kept in a **repo secret** and injected at deploy time by CI — it is never committed to source.
 
 ### 1. Create the `contact-form` label
 Go to **github.com/Unwrenchable/unwrenchable.github.io → Issues → Labels** and create a label named exactly `contact-form` (color #84cc16 looks good).
@@ -90,13 +91,18 @@ Go to **GitHub → Settings → Developer settings → Fine-grained personal acc
 - Repository access: only `unwrenchable.github.io`
 - Permissions → Repository → **Issues: Read & Write**
 
-Copy the token and paste it into `index.html` where it says `YOUR_GITHUB_PAT_HERE` inside `FORM_CONFIG`.
+Copy the token — **do not paste it into any file**.  Add it as a repo secret named `FORM_TOKEN`:  
+**Settings → Secrets and variables → Actions → New repository secret → Name: `FORM_TOKEN`**
 
-### 3. Create a GitHub PAT for the admin panel
-Same steps as above (can reuse the same token, or create a separate one).  
+### 3. Switch Pages source to GitHub Actions
+Go to **Settings → Pages** and under *Build and deployment → Source*, select **GitHub Actions** (not "Deploy from a branch").  
+The workflow at `.github/workflows/deploy.yml` will now build and deploy the site on every push to `main`, injecting `FORM_TOKEN` into `index.html` at build time.
+
+### 4. Create a GitHub PAT for the admin panel
+Same steps as step 2 (can reuse the same token, or create a separate one).  
 You enter this token in the **GITHUB PAT** field when you log into `admin.html`. It is stored only in `sessionStorage` — never in source code.
 
-### 4. Set up email notifications (optional)
+### 5. Set up email notifications (optional)
 Add these three secrets to **Settings → Secrets and variables → Actions**:
 
 | Secret name      | Value |
