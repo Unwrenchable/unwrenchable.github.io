@@ -2,6 +2,10 @@
 // Deploys to https://your-vercel-app.vercel.app/api/contact
 // Set GITHUB_PAT environment variable in Vercel dashboard
 
+// Ratio of Unicode replacement characters above which a decoded string is
+// considered binary rather than valid text content.
+const BINARY_DETECTION_THRESHOLD = 0.05;
+
 const GITHUB_HEADERS = {
   'Accept': 'application/vnd.github+json',
   'Content-Type': 'application/json',
@@ -45,7 +49,7 @@ export default async function handler(req, res) {
         // Basic check: if result contains many replacement chars it's likely binary
         if (fileContent.length > 0) {
           const nullRatio = (fileContent.match(/\uFFFD/g) || []).length / fileContent.length;
-          if (nullRatio > 0.05) {
+          if (nullRatio > BINARY_DETECTION_THRESHOLD) {
             fileContent = `[Binary file — ${file.name} (${file.type || 'unknown type'})]`;
           }
         }

@@ -494,21 +494,42 @@
                 </div>
 
                 <!-- Invoice Generator -->
-                <div class="bg-zinc-900 border border-lime-500/30 p-8 rounded-2xl">
-                    <div class="text-xs tracking-widest mb-1 opacity-50">INVOICE</div>
-                    <h3 class="text-xl mb-6">GENERATE INVOICE</h3>
-                    <div class="space-y-4">
-                        <input type="text" id="inv-name" placeholder="CLIENT NAME / COMPANY" autocomplete="name"
-                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
-                        <input type="email" id="inv-email" placeholder="CLIENT EMAIL" autocomplete="email"
-                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
-                        <input type="text" id="inv-project" placeholder="PROJECT NOTES (optional)" autocomplete="off"
-                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                <div class="bg-zinc-900 border border-lime-500/30 p-8 rounded-2xl" id="invoice-section">
+
+                    <!-- Locked view (shown to non-admin visitors) -->
+                    <div id="invoice-locked">
+                        <div class="text-center py-10">
+                            <div class="text-4xl mb-4">🔒</div>
+                            <h3 class="text-lg mb-3 tracking-widest">ADMIN ONLY</h3>
+                            <p class="text-xs opacity-60 mb-6 leading-relaxed">Invoice generation is restricted to the site owner.<br>Log in to the admin panel to generate invoices.</p>
+                            <a href="admin.html"
+                               class="inline-block px-6 py-3 border border-lime-500 text-xs tracking-widest hover:bg-lime-500 hover:text-black transition-all">
+                                GO TO ADMIN PANEL →
+                            </a>
+                        </div>
                     </div>
-                    <button onclick="openInvoice()"
-                            class="mt-6 w-full py-4 border border-lime-500 hover:bg-lime-500 hover:text-black transition-all text-sm font-bold tracking-widest">
-                        GENERATE &amp; PRINT INVOICE &#x2192;
-                    </button>
+
+                    <!-- Invoice form (shown to admin only) -->
+                    <div id="invoice-form-wrap" class="hidden">
+                        <div class="text-xs tracking-widest mb-1 opacity-50">INVOICE</div>
+                        <h3 class="text-xl mb-6">GENERATE INVOICE</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="inv-name" placeholder="CLIENT NAME / COMPANY" autocomplete="name"
+                                   class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                            <input type="email" id="inv-email" placeholder="CLIENT EMAIL" autocomplete="email"
+                                   class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                            <input type="text" id="inv-project" placeholder="PROJECT NOTES (optional)" autocomplete="off"
+                                   class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                        </div>
+                        <button onclick="openInvoice()"
+                                class="mt-6 w-full py-4 border border-lime-500 hover:bg-lime-500 hover:text-black transition-all text-sm font-bold tracking-widest">
+                            GENERATE &amp; PRINT INVOICE &#x2192;
+                        </button>
+                        <p class="text-center mt-4 text-xs opacity-30">
+                            <a href="admin.html" class="hover:opacity-60 transition-all">Full invoice panel in admin ↗</a>
+                        </p>
+                    </div>
+
                 </div>
 
             </div>
@@ -563,7 +584,19 @@
                 menu.classList.add('hidden');
                 document.getElementById('mobile-menu-icon').className = 'fa-solid fa-bars';
             }
+
+            // Re-evaluate invoice gate whenever the checkout tab (index 6) is shown
+            if (n === 6) updateInvoiceGate();
         }
+
+        function updateInvoiceGate() {
+            const isAdmin = sessionStorage.getItem('admin_auth') === '1';
+            document.getElementById('invoice-locked').classList.toggle('hidden', isAdmin);
+            document.getElementById('invoice-form-wrap').classList.toggle('hidden', !isAdmin);
+        }
+
+        // Run once on load in case the page opens directly on the checkout tab
+        updateInvoiceGate();
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
@@ -577,6 +610,7 @@
         // The API URL below should be updated to your deployed Vercel function URL
         // e.g., https://your-app-name.vercel.app/api/contact
         const CONTACT_API_URL = 'https://unwrenchable-github-io.vercel.app/api/contact';
+        const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // 5 MB
 
         // Contact form — submits to serverless API which creates GitHub Issue
         document.getElementById('contact-form').addEventListener('submit', async function(e) {
@@ -600,7 +634,7 @@
             const fileInput = document.getElementById('contact-file');
             if (fileInput.files && fileInput.files[0]) {
                 const file = fileInput.files[0];
-                if (file.size > 5 * 1024 * 1024) {
+                if (file.size > MAX_ATTACHMENT_BYTES) {
                     error.textContent = 'FILE TOO LARGE — MAX 5 MB';
                     error.classList.remove('hidden');
                     btn.textContent = 'SEND MESSAGE';
