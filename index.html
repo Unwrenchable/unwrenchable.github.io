@@ -577,6 +577,16 @@
         };
 
         // Contact form — creates a GitHub Issue labelled "contact-form"
+        // Disable the form gracefully if the deploy-time token injection never ran.
+        (function () {
+            if (FORM_CONFIG.token === 'YOUR_GITHUB_PAT_HERE') {
+                const btn = document.getElementById('contact-submit-btn');
+                btn.textContent = 'FORM TEMPORARILY UNAVAILABLE';
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        })();
+
         document.getElementById('contact-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const name    = (this.elements['name'].value    || '').trim();
@@ -619,8 +629,13 @@
                     }
                 );
                 if (!res.ok) {
-                    btn.textContent = 'ERROR — TRY AGAIN';
-                    btn.disabled = false;
+                    if (res.status === 401 || res.status === 403) {
+                        btn.textContent = 'FORM TEMPORARILY UNAVAILABLE';
+                        btn.disabled = true;   // auth errors are not retriable by the user
+                    } else {
+                        btn.textContent = 'ERROR — TRY AGAIN';
+                        btn.disabled = false;
+                    }
                     return;
                 }
             } catch (_) {
