@@ -75,3 +75,34 @@ Vault echoes await those who dig.
 Built & maintained in the shadows.  
 Last update: March 2026  
 © Unwrenchable
+
+---
+
+## Contact Form Setup (one-time)
+
+The contact form on the site submits directly to **GitHub Issues** — no third-party services.
+
+### 1. Create the `contact-form` label
+Go to **github.com/Unwrenchable/unwrenchable.github.io → Issues → Labels** and create a label named exactly `contact-form` (color #84cc16 looks good).
+
+### 2. Create a GitHub fine-grained PAT for form submissions
+Go to **GitHub → Settings → Developer settings → Fine-grained personal access tokens → Generate new token**.
+- Repository access: only `unwrenchable.github.io`
+- Permissions → Repository → **Issues: Read & Write**
+
+Copy the token and paste it into `index.html` where it says `YOUR_GITHUB_PAT_HERE` inside `FORM_CONFIG`.
+
+### 3. Create a GitHub PAT for the admin panel
+Same steps as above (can reuse the same token, or create a separate one).  
+You enter this token in the **GITHUB PAT** field when you log into `admin.html`. It is stored only in `sessionStorage` — never in source code.
+
+### 4. Set up email notifications (optional)
+Add these three secrets to **Settings → Secrets and variables → Actions**:
+
+| Secret name      | Value |
+|------------------|-------|
+| `EMAIL_USERNAME` | Your Gmail address |
+| `EMAIL_PASSWORD` | A Gmail [App Password](https://myaccount.google.com/apppasswords) |
+| `NOTIFY_EMAIL`   | The address that should receive alerts |
+
+The workflow in `.github/workflows/contact-form-notify.yml` fires automatically whenever a new `contact-form` issue is opened.

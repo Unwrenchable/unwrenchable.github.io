@@ -367,8 +367,7 @@
         <div id="content-5" class="tab-content hidden">
             <h2 class="text-5xl mb-12 text-center neon-text">GET IN TOUCH</h2>
             <div class="max-w-md mx-auto bg-zinc-900 p-10 rounded-3xl">
-                <form id="contact-form" class="space-y-6"
-                      action="https://formspree.io/f/mlgaaqew" method="POST">
+                <form id="contact-form" class="space-y-6">
                     <input type="text" name="name" placeholder="YOUR NAME" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <input type="email" name="email" placeholder="EMAIL" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <textarea name="message" placeholder="PROJECT IDEA OR MESSAGE" rows="5" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
@@ -566,7 +565,21 @@
             icon.className = isOpen ? 'fa-solid fa-bars' : 'fa-solid fa-xmark';
         }
 
-        // Contact form — POSTs to Formspree and saves a local copy to localStorage
+        // ── CONTACT FORM CONFIG ────────────────────────────────────────────────
+        // Create a GitHub fine-grained PAT with Issues: Read & Write on this
+        // repo only, then paste it below.
+        //
+        // SECURITY NOTE: This token is visible in the page source to anyone
+        // who views it. Scope it to Issues: Write on this one public repo only.
+        // Worst case for a leaked token: someone creates extra issues — close
+        // them with one click. It cannot access private data or other repos.
+        const FORM_CONFIG = {
+            owner: 'Unwrenchable',
+            repo:  'unwrenchable.github.io',
+            token: 'YOUR_GITHUB_PAT_HERE',   // replace before deploying
+        };
+
+        // Contact form — creates a GitHub Issue labelled "contact-form"
         document.getElementById('contact-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const name    = (this.elements['name'].value    || '').trim();
@@ -580,31 +593,44 @@
             btn.textContent = 'SENDING…';
             btn.disabled = true;
 
-            const action = this.getAttribute('action');
-            const isConfigured = !!action;
-            if (isConfigured) {
-                try {
-                    const res = await fetch(action, {
+            const body = [
+                `**Name:** ${name}`,
+                email ? `**Email:** ${email}` : '',
+                `**Date:** ${new Date().toISOString()}`,
+                '',
+                '---',
+                '',
+                message,
+            ].filter(l => l !== '').join('\n');
+
+            try {
+                const res = await fetch(
+                    `https://api.github.com/repos/${FORM_CONFIG.owner}/${FORM_CONFIG.repo}/issues`,
+                    {
                         method: 'POST',
-                        headers: { 'Accept': 'application/json' },
-                        body: new FormData(this),
-                    });
-                    if (!res.ok) {
-                        btn.textContent = 'ERROR — TRY AGAIN';
-                        btn.disabled = false;
-                        return;
+                        headers: {
+                            'Accept':        'application/vnd.github+json',
+                            'Authorization': `Bearer ${FORM_CONFIG.token}`,
+                            'Content-Type':  'application/json',
+                            'X-GitHub-Api-Version': '2022-11-28',
+                        },
+                        body: JSON.stringify({
+                            title:  `[Contact Form] ${name}`,
+                            body,
+                            labels: ['contact-form'],
+                        }),
                     }
-                } catch (_) {
+                );
+                if (!res.ok) {
                     btn.textContent = 'ERROR — TRY AGAIN';
                     btn.disabled = false;
                     return;
                 }
+            } catch (_) {
+                btn.textContent = 'ERROR — TRY AGAIN';
+                btn.disabled = false;
+                return;
             }
-
-            // Also persist locally for the admin panel
-            const msgs = JSON.parse(localStorage.getItem('admin_messages') || '[]');
-            msgs.push({ id: Date.now(), name, email, message, date: new Date().toISOString(), read: false });
-            localStorage.setItem('admin_messages', JSON.stringify(msgs));
 
             btn.textContent = 'SENT ✓';
             success.classList.remove('hidden');

@@ -46,6 +46,9 @@
                     <form id="login-form" class="space-y-5" onsubmit="doLogin(event)">
                         <input type="password" id="admin-pw" placeholder="PASSWORD"
                                class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                        <input type="password" id="admin-pat" placeholder="GITHUB PAT (to manage)"
+                               class="w-full bg-black border border-lime-500/50 p-4 text-lime-400 placeholder-lime-400/30 focus:outline-none text-xs tracking-widest">
+                        <p class="text-xs opacity-30 tracking-widest -mt-2">PAT optional — read-only without it</p>
                         <button type="submit"
                                 class="w-full py-4 bg-lime-500 text-black font-bold hover:bg-lime-400 transition-all text-xs tracking-widest">
                             ENTER →
@@ -62,7 +65,7 @@
             <div class="flex items-center justify-between mb-10">
                 <div>
                     <h1 class="text-3xl neon-text mb-2">MESSAGES</h1>
-                    <p class="text-xs opacity-40 tracking-widest">Contact form submissions</p>
+                    <p class="text-xs opacity-40 tracking-widest">Contact form submissions via GitHub Issues</p>
                 </div>
                 <div class="flex gap-3">
                     <button onclick="markAllRead()"
@@ -71,7 +74,11 @@
                     </button>
                     <button onclick="clearAll()"
                             class="px-4 py-2 border border-red-500/50 text-red-400 text-xs tracking-widest hover:border-red-500 transition-all">
-                        CLEAR ALL
+                        CLOSE ALL
+                    </button>
+                    <button onclick="loadMessages()"
+                            class="px-4 py-2 border border-lime-500/50 text-xs tracking-widest hover:border-lime-500 transition-all">
+                        ↻ REFRESH
                     </button>
                 </div>
             </div>
@@ -99,6 +106,11 @@
                 <button onclick="setFilter('read')"   id="f-read"   class="filter-btn px-4 py-2 border border-lime-500/30 hover:border-lime-500 transition-all">READ</button>
             </div>
 
+            <!-- Loading indicator -->
+            <div id="loading-state" class="hidden text-center py-12 opacity-50">
+                <p class="text-xs tracking-widest">LOADING…</p>
+            </div>
+
             <!-- Message list -->
             <div id="msg-list" class="space-y-4"></div>
 
@@ -114,8 +126,8 @@
     <!-- CONFIRM MODAL -->
     <div id="confirm-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
         <div class="bg-zinc-900 border border-red-500 p-10 max-w-sm w-full rounded-2xl text-center">
-            <p class="text-sm tracking-widest mb-2 text-red-400">⚠ CLEAR ALL MESSAGES?</p>
-            <p class="text-xs opacity-50 mb-8">This cannot be undone.</p>
+            <p class="text-sm tracking-widest mb-2 text-red-400">⚠ CLOSE ALL MESSAGES?</p>
+            <p class="text-xs opacity-50 mb-8">Issues will be closed on GitHub.</p>
             <div class="flex gap-4">
                 <button onclick="confirmClear(false)"
                         class="flex-1 py-3 border border-lime-500/50 text-xs tracking-widest hover:border-lime-500 transition-all">
@@ -123,13 +135,19 @@
                 </button>
                 <button onclick="confirmClear(true)"
                         class="flex-1 py-3 border border-red-500 text-red-400 text-xs tracking-widest hover:bg-red-500 hover:text-black transition-all">
-                    DELETE ALL
+                    CLOSE ALL
                 </button>
             </div>
         </div>
     </div>
 
     <script>
+        // ── CONFIG ─────────────────────────────────────────────────────────────
+        const GH_OWNER = 'Unwrenchable';
+        const GH_REPO  = 'unwrenchable.github.io';
+        const GH_LABEL = 'contact-form';
+        const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`;
+
         // ── PASSWORD AUTHENTICATION ────────────────────────────────────────────
         // NOTE: This is a client-side-only password check suitable for a static
         // GitHub Pages site. It prevents casual access but is not a substitute
@@ -138,6 +156,7 @@
         // and replace the hash constant below.
         const ADMIN_HASH = '928e6f4bc3d6c1f38b563b7696d0b02747bebd2c78926f4659a9cc405f94827a';
         const SESSION_KEY = 'admin_auth';
+        const PAT_KEY     = 'admin_pat';
 
         async function sha256(str) {
             const buf  = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -147,9 +166,11 @@
         async function doLogin(e) {
             e.preventDefault();
             const pw   = document.getElementById('admin-pw').value;
+            const pat  = document.getElementById('admin-pat').value.trim();
             const hash = await sha256(pw);
             if (hash === ADMIN_HASH) {
                 sessionStorage.setItem(SESSION_KEY, '1');
+                if (pat) sessionStorage.setItem(PAT_KEY, pat);
                 showDashboard();
             } else {
                 const err = document.getElementById('login-err');
@@ -161,17 +182,19 @@
 
         function logout() {
             sessionStorage.removeItem(SESSION_KEY);
+            sessionStorage.removeItem(PAT_KEY);
             document.getElementById('dashboard').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('logout-btn').classList.add('hidden');
             document.getElementById('admin-pw').value = '';
+            document.getElementById('admin-pat').value = '';
         }
 
         function showDashboard() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
-            renderMessages();
+            loadMessages();
         }
 
         // Auto-login if session is still active
@@ -179,16 +202,70 @@
             showDashboard();
         }
 
-        // ── MESSAGES DATA ──────────────────────────────────────────────────────
-        const MSG_KEY = 'admin_messages';
-        let activeFilter = 'all';
+        // ── GITHUB ISSUES API ──────────────────────────────────────────────────
+        function getPat() { return sessionStorage.getItem(PAT_KEY) || ''; }
 
-        function getMessages() {
-            return JSON.parse(localStorage.getItem(MSG_KEY) || '[]');
+        function ghHeaders(withAuth = false) {
+            const h = {
+                'Accept': 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28',
+            };
+            const pat = getPat();
+            if (withAuth && pat) h['Authorization'] = `Bearer ${pat}`;
+            return h;
         }
 
-        function saveMessages(msgs) {
-            localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+        // Fetch all contact-form issues (open = unread, closed = read)
+        async function fetchIssues(state) {
+            const url = `${GH_API}/issues?labels=${encodeURIComponent(GH_LABEL)}&state=${state}&per_page=100`;
+            const res = await fetch(url, { headers: ghHeaders() });
+            if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+            return res.json();
+        }
+
+        // Parse the structured body written by the contact form
+        function parseBody(issue) {
+            const raw = issue.body || '';
+            const nameMatch  = raw.match(/^\*\*Name:\*\*\s*(.+)$/m);
+            const emailMatch = raw.match(/^\*\*Email:\*\*\s*(.+)$/m);
+            // Everything after the "---" separator is the message
+            const parts   = raw.split(/^---$/m);
+            const msgText = parts.length > 1 ? parts.slice(1).join('---').trim() : raw.trim();
+            return {
+                name:    nameMatch  ? nameMatch[1].trim()  : (issue.title.replace(/^\[Contact Form\]\s*/i, '') || 'Anonymous'),
+                email:   emailMatch ? emailMatch[1].trim() : '',
+                message: msgText,
+            };
+        }
+
+        let allIssues   = [];
+        let activeFilter = 'all';
+
+        async function loadMessages() {
+            const loading = document.getElementById('loading-state');
+            const list    = document.getElementById('msg-list');
+            const empty   = document.getElementById('empty-state');
+            loading.classList.remove('hidden');
+            list.innerHTML = '';
+            empty.classList.add('hidden');
+
+            try {
+                const [open, closed] = await Promise.all([
+                    fetchIssues('open'),
+                    fetchIssues('closed'),
+                ]);
+                allIssues = [
+                    ...open.map(i   => ({ ...i, read: false })),
+                    ...closed.map(i => ({ ...i, read: true  })),
+                ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } catch (err) {
+                loading.classList.add('hidden');
+                list.innerHTML = `<p class="text-red-400 text-xs tracking-widest text-center py-8">FAILED TO LOAD: ${escHtml(err.message)}</p>`;
+                return;
+            }
+
+            loading.classList.add('hidden');
+            renderMessages();
         }
 
         function setFilter(f) {
@@ -202,16 +279,15 @@
         }
 
         function renderMessages() {
-            const all   = getMessages().sort((a, b) => b.id - a.id);
-            const shown = activeFilter === 'unread' ? all.filter(m => !m.read)
-                        : activeFilter === 'read'   ? all.filter(m =>  m.read)
-                        : all;
+            const shown = activeFilter === 'unread' ? allIssues.filter(m => !m.read)
+                        : activeFilter === 'read'   ? allIssues.filter(m =>  m.read)
+                        : allIssues;
 
-            document.getElementById('stat-total').textContent  = all.length;
-            document.getElementById('stat-unread').textContent = all.filter(m => !m.read).length;
-            document.getElementById('stat-read').textContent   = all.filter(m =>  m.read).length;
+            document.getElementById('stat-total').textContent  = allIssues.length;
+            document.getElementById('stat-unread').textContent = allIssues.filter(m => !m.read).length;
+            document.getElementById('stat-read').textContent   = allIssues.filter(m =>  m.read).length;
 
-            const list = document.getElementById('msg-list');
+            const list  = document.getElementById('msg-list');
             const empty = document.getElementById('empty-state');
 
             if (shown.length === 0) {
@@ -221,10 +297,13 @@
             }
             empty.classList.add('hidden');
 
+            const hasPat = !!getPat();
+
             list.innerHTML = shown.map(m => {
-                const d    = new Date(m.date);
-                const date = d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
-                const time = d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+                const parsed   = parseBody(m);
+                const d        = new Date(m.created_at);
+                const date     = d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+                const time     = d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
                 const isUnread = !m.read;
                 return `
                 <div class="msg-card bg-zinc-900 border border-lime-500/30 p-6 rounded-xl ${isUnread ? 'unread' : 'read'}">
@@ -232,49 +311,77 @@
                         <div>
                             <div class="flex items-center gap-3 mb-1">
                                 ${isUnread ? '<span class="text-xs bg-lime-500 text-black px-2 py-0.5 tracking-widest">NEW</span>' : ''}
-                                <span class="font-bold text-lime-300">${escHtml(m.name || 'Anonymous')}</span>
+                                <span class="font-bold text-lime-300">${escHtml(parsed.name)}</span>
                             </div>
-                            ${m.email ? `<a href="mailto:${escHtml(m.email)}" class="text-xs text-lime-400/60 hover:text-lime-400 transition-all">${escHtml(m.email)}</a>` : ''}
+                            ${parsed.email ? `<a href="mailto:${escHtml(parsed.email)}" class="text-xs text-lime-400/60 hover:text-lime-400 transition-all">${escHtml(parsed.email)}</a>` : ''}
                         </div>
                         <div class="text-right shrink-0">
                             <div class="text-xs opacity-50">${date}</div>
                             <div class="text-xs opacity-30">${time}</div>
+                            <a href="${escHtml(m.html_url)}" target="_blank" rel="noopener noreferrer"
+                               class="text-xs opacity-30 hover:opacity-60 transition-all">#${m.number}</a>
                         </div>
                     </div>
-                    <p class="text-sm text-lime-200/80 leading-relaxed whitespace-pre-wrap mb-5">${escHtml(m.message || '')}</p>
-                    <div class="flex gap-3 text-xs tracking-widest">
-                        <button onclick="toggleRead(${m.id})"
+                    <p class="text-sm text-lime-200/80 leading-relaxed whitespace-pre-wrap mb-5">${escHtml(parsed.message)}</p>
+                    <div class="flex gap-3 text-xs tracking-widest flex-wrap">
+                        ${hasPat ? `<button onclick="toggleRead(${m.number}, ${isUnread})"
                                 class="px-3 py-1.5 border border-lime-500/50 hover:border-lime-500 transition-all">
                             ${isUnread ? 'MARK READ' : 'MARK UNREAD'}
-                        </button>
-                        ${m.email ? `<a href="mailto:${escHtml(m.email)}"
+                        </button>` : ''}
+                        ${parsed.email ? `<a href="mailto:${escHtml(parsed.email)}"
                                 class="px-3 py-1.5 border border-lime-500/50 hover:border-lime-500 transition-all">
                             REPLY ✉
                         </a>` : ''}
-                        <button onclick="deleteMsg(${m.id})"
+                        <a href="${escHtml(m.html_url)}" target="_blank" rel="noopener noreferrer"
+                           class="px-3 py-1.5 border border-lime-500/50 hover:border-lime-500 transition-all">
+                            VIEW ON GITHUB ↗
+                        </a>
+                        ${hasPat ? `<button onclick="deleteMsg(${m.number})"
                                 class="px-3 py-1.5 border border-red-500/40 text-red-400 hover:border-red-500 transition-all ml-auto">
-                            DELETE
-                        </button>
+                            CLOSE
+                        </button>` : ''}
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function toggleRead(id) {
-            const msgs = getMessages().map(m => m.id === id ? { ...m, read: !m.read } : m);
-            saveMessages(msgs);
-            renderMessages();
+        // Patch a GitHub issue state (open/closed)
+        async function patchIssue(number, payload) {
+            const pat = getPat();
+            if (!pat) { alert('A GitHub PAT is required to manage issues. Log out and log back in, entering your PAT in the GITHUB PAT field.'); return false; }
+            const res = await fetch(`${GH_API}/issues/${number}`, {
+                method: 'PATCH',
+                headers: { ...ghHeaders(true), 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            return res.ok;
         }
 
-        function deleteMsg(id) {
-            const msgs = getMessages().filter(m => m.id !== id);
-            saveMessages(msgs);
-            renderMessages();
+        async function toggleRead(number, currentlyUnread) {
+            const newState = currentlyUnread ? 'closed' : 'open';
+            const ok = await patchIssue(number, { state: newState });
+            if (ok) {
+                const issue = allIssues.find(i => i.number === number);
+                if (issue) issue.read = currentlyUnread;
+                renderMessages();
+            }
         }
 
-        function markAllRead() {
-            const msgs = getMessages().map(m => ({ ...m, read: true }));
-            saveMessages(msgs);
+        async function deleteMsg(number) {
+            const ok = await patchIssue(number, { state: 'closed' });
+            if (ok) {
+                const issue = allIssues.find(i => i.number === number);
+                if (issue) issue.read = true;
+                renderMessages();
+            }
+        }
+
+        async function markAllRead() {
+            const pat = getPat();
+            if (!pat) { alert('A GitHub PAT is required to manage issues. Log out and log back in, entering your PAT in the GITHUB PAT field.'); return; }
+            const unread = allIssues.filter(i => !i.read);
+            await Promise.all(unread.map(i => patchIssue(i.number, { state: 'closed' })));
+            unread.forEach(i => { i.read = true; });
             renderMessages();
         }
 
@@ -282,10 +389,14 @@
             document.getElementById('confirm-modal').classList.remove('hidden');
         }
 
-        function confirmClear(ok) {
+        async function confirmClear(ok) {
             document.getElementById('confirm-modal').classList.add('hidden');
             if (!ok) return;
-            localStorage.removeItem(MSG_KEY);
+            const pat = getPat();
+            if (!pat) { alert('A GitHub PAT is required to manage issues. Log out and log back in, entering your PAT in the GITHUB PAT field.'); return; }
+            const open = allIssues.filter(i => !i.read);
+            await Promise.all(open.map(i => patchIssue(i.number, { state: 'closed' })));
+            open.forEach(i => { i.read = true; });
             renderMessages();
         }
 
