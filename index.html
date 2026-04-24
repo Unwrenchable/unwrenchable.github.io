@@ -348,7 +348,7 @@
         <!-- CHECKOUT / PAY -->
         <div id="content-6" class="tab-content hidden">
             <h2 class="text-5xl mb-4 text-center neon-text">CHECKOUT</h2>
-            <p class="text-center text-xs opacity-50 mb-12">Secure payments &bull; Card + Crypto &bull; Invoice included</p>
+            <p class="text-center text-xs opacity-50 mb-12">Secure payments &bull; Card + Crypto + Venmo &bull; Invoice included</p>
 
             <div class="max-w-2xl mx-auto space-y-8">
 
@@ -365,7 +365,7 @@
                 <div class="bg-zinc-900 p-8 rounded-2xl">
                     <div class="text-xs tracking-widest mb-1 opacity-50">STEP 2</div>
                     <h3 class="text-xl mb-6">PAYMENT METHOD</h3>
-                    <div class="flex gap-4">
+                    <div class="flex gap-4 flex-wrap">
                         <button onclick="setPayMethod('card')" id="pay-card-btn"
                                 class="flex-1 py-4 border-2 border-lime-500 bg-lime-500 text-black font-bold transition-all text-sm">
                             &#x1F4B3; CARD
@@ -373,6 +373,10 @@
                         <button onclick="setPayMethod('crypto')" id="pay-crypto-btn"
                                 class="flex-1 py-4 border-2 border-lime-500 transition-all text-sm">
                             &#x20BF; CRYPTO
+                        </button>
+                        <button onclick="setPayMethod('venmo')" id="pay-venmo-btn"
+                                class="flex-1 py-4 border-2 border-lime-500 transition-all text-sm">
+                            &#x1F4F1; VENMO
                         </button>
                     </div>
                 </div>
@@ -447,7 +451,24 @@
                     -->
                 </div>
 
-                <!-- Invoice Generator -->
+                <!-- Venmo Payment -->
+                <div id="venmo-panel" class="bg-zinc-900 p-8 rounded-2xl hidden">
+                    <div class="text-xs tracking-widest mb-1 opacity-50">PAY WITH VENMO</div>
+                    <p class="text-xs opacity-60 mt-2 mb-6">Scan the QR code in the Venmo app or search <strong class="text-lime-300">@Atomicfizzcaps</strong>, then message <a href="https://x.com/AtomicFizzCaps" target="_blank" class="text-lime-400 underline">@AtomicFizzCaps</a> on X with your payment confirmation to get started.</p>
+                    <div class="flex flex-col items-center gap-6">
+                        <img src="https://github.com/user-attachments/assets/5aa77bcb-9cfa-4305-b568-371f17e24c7c"
+                             alt="Venmo QR code for @Atomicfizzcaps"
+                             class="w-64 h-auto rounded-2xl border border-lime-500/30 bg-white p-4">
+                        <div class="text-center">
+                            <p class="text-lime-300 text-sm tracking-widest mb-1">@Atomicfizzcaps</p>
+                            <a href="https://venmo.com/Atomicfizzcaps" target="_blank" rel="noopener"
+                               class="inline-block mt-3 px-6 py-3 border border-lime-500 hover:bg-lime-500 hover:text-black transition-all text-xs tracking-widest font-bold">
+                                OPEN IN VENMO &rarr;
+                            </a>
+                        </div>
+                    </div>
+                    <p class="text-xs opacity-40 mt-6 text-center">&#x1F512; Sent as a payment (not a personal transaction) &bull; Include project name in the note</p>
+                </div>
                 <div class="bg-zinc-900 border border-lime-500/30 p-8 rounded-2xl">
                     <div class="text-xs tracking-widest mb-1 opacity-50">INVOICE</div>
                     <h3 class="text-xl mb-6">GENERATE INVOICE</h3>
@@ -664,20 +685,29 @@
             payMethod = method;
             const cardPanel   = document.getElementById('card-panel');
             const cryptoPanel = document.getElementById('crypto-panel');
+            const venmoPanel  = document.getElementById('venmo-panel');
             const cardBtn     = document.getElementById('pay-card-btn');
             const cryptoBtn   = document.getElementById('pay-crypto-btn');
-            const activeClass = 'flex-1 py-4 border-2 border-lime-500 bg-lime-500 text-black font-bold transition-all text-sm';
+            const venmoBtn    = document.getElementById('pay-venmo-btn');
+            const activeClass   = 'flex-1 py-4 border-2 border-lime-500 bg-lime-500 text-black font-bold transition-all text-sm';
             const inactiveClass = 'flex-1 py-4 border-2 border-lime-500 transition-all text-sm';
+
+            cardPanel.classList.add('hidden');
+            cryptoPanel.classList.add('hidden');
+            venmoPanel.classList.add('hidden');
+            cardBtn.className   = inactiveClass;
+            cryptoBtn.className = inactiveClass;
+            venmoBtn.className  = inactiveClass;
+
             if (method === 'card') {
                 cardPanel.classList.remove('hidden');
-                cryptoPanel.classList.add('hidden');
-                cardBtn.className   = activeClass;
-                cryptoBtn.className = inactiveClass;
-            } else {
-                cardPanel.classList.add('hidden');
+                cardBtn.className = activeClass;
+            } else if (method === 'crypto') {
                 cryptoPanel.classList.remove('hidden');
                 cryptoBtn.className = activeClass;
-                cardBtn.className   = inactiveClass;
+            } else {
+                venmoPanel.classList.remove('hidden');
+                venmoBtn.className = activeClass;
             }
         }
 
@@ -797,7 +827,7 @@
 
   <div class="footer-note">
     <p><strong>Payment Terms:</strong> 50% deposit required to begin &bull; Remainder due on delivery</p>
-    <p><strong>Accepted:</strong> Credit/Debit Card &bull; Bitcoin (BTC) &bull; Ethereum / USDC &bull; Solana / USDC</p>
+    <p><strong>Accepted:</strong> Credit/Debit Card &bull; Venmo (@Atomicfizzcaps) &bull; Bitcoin (BTC) &bull; Ethereum / USDC &bull; Solana / USDC</p>
     <p>Message @AtomicFizzCaps on X or open a GitHub issue to confirm payment and get started.</p>
     <p style="margin-top:12px; font-size:10px; color:#bbb;">This invoice was generated by unwrenchable.github.io &bull; ${dateStr}</p>
   </div>
