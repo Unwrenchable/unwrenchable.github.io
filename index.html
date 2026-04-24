@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
     <title>Unwrenchable | Web Developer & App Builder</title>
     <meta name="description" content="Unwrenchable builds fast, modern websites and full-stack apps. Freelance web developer specialising in pixel-perfect UI, e-commerce, and interactive experiences.">
     <link rel="canonical" href="https://unwrenchable.github.io/">
@@ -368,9 +369,9 @@
             <h2 class="text-5xl mb-12 text-center neon-text">GET IN TOUCH</h2>
             <div class="max-w-md mx-auto bg-zinc-900 p-10 rounded-3xl">
                 <form id="contact-form" class="space-y-6">
-                    <input type="text" name="name" placeholder="YOUR NAME" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
-                    <input type="email" name="email" placeholder="EMAIL" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
-                    <textarea name="message" placeholder="PROJECT IDEA OR MESSAGE" rows="5" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
+                    <input type="text" name="name" placeholder="YOUR NAME" autocomplete="name" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
+                    <input type="email" name="email" placeholder="EMAIL" autocomplete="email" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
+                    <textarea name="message" placeholder="PROJECT IDEA OR MESSAGE" rows="5" autocomplete="off" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
                     <button type="submit" id="contact-submit-btn"
                             class="w-full py-5 bg-lime-500 text-black font-bold hover:bg-lime-400 transition-all">
                         SEND MESSAGE
@@ -490,11 +491,11 @@
                     <div class="text-xs tracking-widest mb-1 opacity-50">INVOICE</div>
                     <h3 class="text-xl mb-6">GENERATE INVOICE</h3>
                     <div class="space-y-4">
-                        <input type="text" id="inv-name" placeholder="CLIENT NAME / COMPANY"
+                        <input type="text" id="inv-name" placeholder="CLIENT NAME / COMPANY" autocomplete="name"
                                class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
-                        <input type="email" id="inv-email" placeholder="CLIENT EMAIL"
+                        <input type="email" id="inv-email" placeholder="CLIENT EMAIL" autocomplete="email"
                                class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
-                        <input type="text" id="inv-project" placeholder="PROJECT NOTES (optional)"
+                        <input type="text" id="inv-project" placeholder="PROJECT NOTES (optional)" autocomplete="off"
                                class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
                     </div>
                     <button onclick="openInvoice()"
