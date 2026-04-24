@@ -566,17 +566,13 @@
         }
 
         // ── CONTACT FORM CONFIG ────────────────────────────────────────────────
-        // Create a GitHub fine-grained PAT with Issues: Read & Write on this
-        // repo only, then paste it below.
-        //
-        // SECURITY NOTE: This token is visible in the page source to anyone
-        // who views it. Scope it to Issues: Write on this one public repo only.
-        // Worst case for a leaked token: someone creates extra issues — close
-        // them with one click. It cannot access private data or other repos.
+        // The token below is injected at build time by the deploy workflow from
+        // the FORM_TOKEN repo secret (Settings → Secrets and variables → Actions).
+        // Never commit a real PAT here — keep the placeholder as-is in source.
         const FORM_CONFIG = {
             owner: 'Unwrenchable',
             repo:  'unwrenchable.github.io',
-            token: 'YOUR_GITHUB_PAT_HERE',   // replace before deploying
+            token: 'YOUR_GITHUB_PAT_HERE',   // replaced at deploy time by CI
         };
 
         // Contact form — creates a GitHub Issue labelled "contact-form"
