@@ -94,7 +94,7 @@
         <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-lime-500 rounded-full flex items-center justify-center text-black font-bold">U</div>
-                <span class="tracking-widest neon-text" style="font-size:clamp(0.85rem,1.8vw,1.25rem)">HAVENTEC LLC</span>
+                <span class="tracking-widest neon-text" style="font-size:clamp(0.85rem,1.8vw,1.25rem)">UNWRENCHABLE</span>
             </div>
 
             <!-- Desktop tabs (shown via CSS on ≥ 768 px) -->
@@ -146,9 +146,9 @@
         <!-- HOME / HERO -->
         <div id="content-0" class="tab-content">
             <div class="min-h-[80vh] flex flex-col items-center justify-center text-center">
-                <h1 class="hero-title font-bold neon-text mb-6">HAVENTEC LLC</h1>
+                <h1 class="hero-title font-bold neon-text mb-6">UNWRENCHABLE</h1>
                 <p class="hero-subtitle text-lime-300 mb-8">Unwrenchable • Website Builder • App Developer • Game Creator</p>
-                <p class="max-w-lg text-lime-200/80 mb-12 text-xs leading-relaxed">I build fast, clean websites and apps at honest prices.<br>From simple one-page sites to full-featured web apps — delivered on time.<br>Operating through Haventec LLC with active client and product development.</p>
+                <p class="max-w-lg text-lime-200/80 mb-12 text-xs leading-relaxed">I build fast, clean websites and apps at honest prices.<br>From simple one-page sites to full-featured web apps — delivered on time.<br>Independent operation with active client and product development.</p>
 
                 <div class="flex hero-ctas">
                     <button onclick="switchTab(2)"
@@ -167,7 +167,7 @@
                 </div>
 
                 <div class="mt-8 max-w-3xl w-full bg-zinc-900/60 border border-lime-500/40 rounded-xl p-5 text-left text-xs leading-relaxed">
-                    <div class="text-lime-300 mb-2 tracking-widest">HAVENTEC LLC — CURRENT STATE</div>
+                    <div class="text-lime-300 mb-2 tracking-widest">UNWRENCHABLE — CURRENT STATE</div>
                     <div class="text-lime-200/80">Status: Active and shipping. Current focus is client builds, web utilities, automation tooling, and game-oriented experiments. Public demos are linked below, with additional private/internal work available on request.</div>
                 </div>
             </div>
@@ -283,7 +283,7 @@
         <!-- PORTFOLIO -->
         <div id="content-3" class="tab-content hidden">
             <h2 class="text-5xl mb-6 text-center neon-text">PORTFOLIO</h2>
-            <p class="text-center text-xs opacity-70 mb-12 max-w-3xl mx-auto">A broader snapshot of live projects, prototypes, and active deployments showing the current operating state of Haventec LLC.</p>
+            <p class="text-center text-xs opacity-70 mb-12 max-w-3xl mx-auto">A broader snapshot of live projects, prototypes, and active deployments showing the current operating state of Unwrenchable.</p>
             <div class="grid md:grid-cols-2 gap-8">
                 <a href="https://atomicfizzcaps.xyz" target="_blank" class="group bg-zinc-900 p-8 rounded-2xl hover:border-lime-400 border border-transparent transition-all">
                     <div class="text-lime-300 text-sm mb-2">LIVE SITE</div>
@@ -358,7 +358,7 @@
         <div id="content-4" class="tab-content hidden">
             <h2 class="text-5xl mb-12 text-center neon-text">WHO IS UNWRENCHABLE?</h2>
             <div class="max-w-2xl mx-auto text-lime-200/80 leading-relaxed text-lg">
-                <p class="mb-8">Unwrenchable is the operating identity behind Haventec LLC — focused on websites, web apps, digital tools, and interactive products.</p>
+                <p class="mb-8">Unwrenchable is an independent web dev operation — focused on websites, web apps, digital tools, and interactive products.</p>
                 <p class="mb-8">Current mode: active delivery and ongoing product R&amp;D, with public demos for live work and private builds for select clients.</p>
                 <p>No agency bloat. No fluff. Just clean code, fast delivery, and real functionality.</p>
             </div>
@@ -372,6 +372,12 @@
                     <input type="text" name="name" placeholder="YOUR NAME" autocomplete="name" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <input type="email" name="email" placeholder="EMAIL" autocomplete="email" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none">
                     <textarea name="message" placeholder="PROJECT IDEA OR MESSAGE" rows="5" autocomplete="off" class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none"></textarea>
+                    <div>
+                        <label class="block text-xs tracking-widest opacity-70 mb-2">ATTACH A DOCUMENT <span class="opacity-50">(optional — max 5 MB)</span></label>
+                        <input type="file" name="attachment" id="contact-file"
+                               accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.zip"
+                               class="w-full bg-black border border-lime-500/50 p-3 text-lime-400/80 text-xs focus:outline-none file:mr-4 file:py-2 file:px-4 file:border file:border-lime-500 file:bg-black file:text-lime-400 file:text-xs file:cursor-pointer hover:file:bg-lime-500/10">
+                    </div>
                     <button type="submit" id="contact-submit-btn"
                             class="w-full py-5 bg-lime-500 text-black font-bold hover:bg-lime-400 transition-all">
                         SEND MESSAGE
@@ -488,21 +494,42 @@
                 </div>
 
                 <!-- Invoice Generator -->
-                <div class="bg-zinc-900 border border-lime-500/30 p-8 rounded-2xl">
-                    <div class="text-xs tracking-widest mb-1 opacity-50">INVOICE</div>
-                    <h3 class="text-xl mb-6">GENERATE INVOICE</h3>
-                    <div class="space-y-4">
-                        <input type="text" id="inv-name" placeholder="CLIENT NAME / COMPANY" autocomplete="name"
-                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
-                        <input type="email" id="inv-email" placeholder="CLIENT EMAIL" autocomplete="email"
-                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
-                        <input type="text" id="inv-project" placeholder="PROJECT NOTES (optional)" autocomplete="off"
-                               class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                <div class="bg-zinc-900 border border-lime-500/30 p-8 rounded-2xl" id="invoice-section">
+
+                    <!-- Locked view (shown to non-admin visitors) -->
+                    <div id="invoice-locked">
+                        <div class="text-center py-10">
+                            <div class="text-4xl mb-4">🔒</div>
+                            <h3 class="text-lg mb-3 tracking-widest">ADMIN ONLY</h3>
+                            <p class="text-xs opacity-60 mb-6 leading-relaxed">Invoice generation is restricted to the site owner.<br>Log in to the admin panel to generate invoices.</p>
+                            <a href="admin.html"
+                               class="inline-block px-6 py-3 border border-lime-500 text-xs tracking-widest hover:bg-lime-500 hover:text-black transition-all">
+                                GO TO ADMIN PANEL →
+                            </a>
+                        </div>
                     </div>
-                    <button onclick="openInvoice()"
-                            class="mt-6 w-full py-4 border border-lime-500 hover:bg-lime-500 hover:text-black transition-all text-sm font-bold tracking-widest">
-                        GENERATE &amp; PRINT INVOICE &#x2192;
-                    </button>
+
+                    <!-- Invoice form (shown to admin only) -->
+                    <div id="invoice-form-wrap" class="hidden">
+                        <div class="text-xs tracking-widest mb-1 opacity-50">INVOICE</div>
+                        <h3 class="text-xl mb-6">GENERATE INVOICE</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="inv-name" placeholder="CLIENT NAME / COMPANY" autocomplete="name"
+                                   class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                            <input type="email" id="inv-email" placeholder="CLIENT EMAIL" autocomplete="email"
+                                   class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                            <input type="text" id="inv-project" placeholder="PROJECT NOTES (optional)" autocomplete="off"
+                                   class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                        </div>
+                        <button onclick="openInvoice()"
+                                class="mt-6 w-full py-4 border border-lime-500 hover:bg-lime-500 hover:text-black transition-all text-sm font-bold tracking-widest">
+                            GENERATE &amp; PRINT INVOICE &#x2192;
+                        </button>
+                        <p class="text-center mt-4 text-xs opacity-30">
+                            <a href="admin.html" class="hover:opacity-60 transition-all">Full invoice panel in admin ↗</a>
+                        </p>
+                    </div>
+
                 </div>
 
             </div>
@@ -557,7 +584,19 @@
                 menu.classList.add('hidden');
                 document.getElementById('mobile-menu-icon').className = 'fa-solid fa-bars';
             }
+
+            // Re-evaluate invoice gate whenever the checkout tab (index 6) is shown
+            if (n === 6) updateInvoiceGate();
         }
+
+        function updateInvoiceGate() {
+            const isAdmin = sessionStorage.getItem('admin_auth') === '1';
+            document.getElementById('invoice-locked').classList.toggle('hidden', isAdmin);
+            document.getElementById('invoice-form-wrap').classList.toggle('hidden', !isAdmin);
+        }
+
+        // Run once on load in case the page opens directly on the checkout tab
+        updateInvoiceGate();
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
@@ -571,6 +610,7 @@
         // The API URL below should be updated to your deployed Vercel function URL
         // e.g., https://your-app-name.vercel.app/api/contact
         const CONTACT_API_URL = 'https://unwrenchable-github-io.vercel.app/api/contact';
+        const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // 5 MB
 
         // Contact form — submits to serverless API which creates GitHub Issue
         document.getElementById('contact-form').addEventListener('submit', async function(e) {
@@ -589,13 +629,41 @@
             btn.textContent = 'SENDING…';
             btn.disabled = true;
 
+            // Handle optional file attachment
+            let fileData = null;
+            const fileInput = document.getElementById('contact-file');
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                if (file.size > MAX_ATTACHMENT_BYTES) {
+                    error.textContent = 'FILE TOO LARGE — MAX 5 MB';
+                    error.classList.remove('hidden');
+                    btn.textContent = 'SEND MESSAGE';
+                    btn.disabled = false;
+                    return;
+                }
+                fileData = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const result = reader.result;
+                        const commaIndex = result.indexOf(',');
+                        if (commaIndex === -1) {
+                            reject(new Error('Malformed data URL'));
+                            return;
+                        }
+                        resolve({ name: file.name, type: file.type, data: result.slice(commaIndex + 1) });
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
             try {
                 const res = await fetch(CONTACT_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ name, email, message }),
+                    body: JSON.stringify({ name, email, message, file: fileData }),
                 });
 
                 const data = await res.json();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; img-src 'self' data: https://lh3.googleusercontent.com; font-src 'self'; connect-src 'self' https://api.github.com https://accounts.google.com; frame-src https://accounts.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
     <title>Admin — Unwrenchable</title>
     <link rel="stylesheet" href="assets/css/tailwind.min.css">
     <link rel="stylesheet" href="assets/css/press-start-2p.css">
@@ -14,6 +14,12 @@
         .msg-card { transition: border-color .2s; }
         .msg-card.unread { border-left: 4px solid #84cc16; }
         .msg-card.read   { border-left: 4px solid rgba(132,204,22,.2); opacity: .7; }
+        .admin-tab { padding: 0.6rem 1.2rem; font-size: 0.65rem; letter-spacing: .1em; border-bottom: 3px solid transparent; transition: all .2s; opacity: .5; }
+        .admin-tab:hover { opacity: .85; }
+        .admin-tab.active { border-bottom-color: #84cc16; color: #84cc16; opacity: 1; }
+        .pkg-radio { border: 1px solid rgba(132,204,22,.3); border-radius: 0.5rem; padding: 0.75rem 1rem; cursor: pointer; transition: all .2s; }
+        .pkg-radio:hover { border-color: rgba(132,204,22,.7); }
+        .pkg-radio.selected { border-color: #84cc16; background: rgba(132,204,22,.1); }
     </style>
 </head>
 <body class="bg-zinc-950 text-lime-400 min-h-screen overflow-x-hidden">
@@ -44,6 +50,18 @@
                 <div class="w-full max-w-sm bg-zinc-900 border border-lime-500 p-10 rounded-2xl">
                     <h1 class="text-2xl neon-text mb-2 text-center">ADMIN</h1>
                     <p class="text-xs opacity-40 text-center mb-8 tracking-widest">RESTRICTED ACCESS</p>
+
+                    <!-- Google Sign-In (shown only when GOOGLE_CLIENT_ID is configured) -->
+                    <div id="google-signin-wrap" class="hidden mb-6">
+                        <div id="google-signin-btn" class="flex justify-center mb-2"></div>
+                        <p class="text-center text-xs opacity-30 tracking-widest">SIGN IN WITH GOOGLE</p>
+                        <div class="flex items-center gap-3 my-6">
+                            <div class="flex-1 border-t border-lime-500/20"></div>
+                            <span class="text-xs opacity-25 tracking-widest">OR</span>
+                            <div class="flex-1 border-t border-lime-500/20"></div>
+                        </div>
+                    </div>
+
                     <form id="login-form" class="space-y-5" onsubmit="doLogin(event)">
                         <input type="password" id="admin-pw" placeholder="PASSWORD" autocomplete="current-password"
                                class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
@@ -62,6 +80,15 @@
 
         <!-- DASHBOARD (shown after login) -->
         <div id="dashboard" class="hidden">
+
+            <!-- Admin panel tab navigation -->
+            <div class="flex gap-0 mb-10 border-b border-lime-500/20">
+                <button onclick="setAdminTab('messages')" id="atab-messages" class="admin-tab active">MESSAGES</button>
+                <button onclick="setAdminTab('invoice')"  id="atab-invoice"  class="admin-tab">INVOICE</button>
+            </div>
+
+            <!-- ── MESSAGES PANEL ──────────────────────────────────────────── -->
+            <div id="panel-messages">
 
             <div class="flex items-center justify-between mb-10">
                 <div>
@@ -121,8 +148,73 @@
                 <p class="text-sm tracking-widest">NO MESSAGES YET</p>
             </div>
 
-        </div>
-    </div>
+            </div><!-- /panel-messages -->
+
+            <!-- ── INVOICE PANEL ──────────────────────────────────────────────── -->
+            <div id="panel-invoice" class="hidden">
+
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h1 class="text-3xl neon-text mb-2">INVOICE GENERATOR</h1>
+                        <p class="text-xs opacity-40 tracking-widest">Generate a printable invoice for a client</p>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl space-y-6">
+
+                    <!-- Package selector -->
+                    <div class="bg-zinc-900 border border-lime-500/30 p-6 rounded-2xl">
+                        <div class="text-xs tracking-widest mb-4 opacity-50">SERVICE / PACKAGE</div>
+                        <div class="space-y-2" id="inv-pkg-list"><!-- rendered by JS --></div>
+                    </div>
+
+                    <!-- Custom price (shown for Custom package) -->
+                    <div id="inv-custom-price" class="hidden bg-zinc-900 border border-lime-500/30 p-6 rounded-2xl">
+                        <div class="text-xs tracking-widest mb-4 opacity-50">CUSTOM PRICING</div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs opacity-50 tracking-widest mb-2">PRICE (USD)</label>
+                                <input type="number" id="inv-custom-lo" placeholder="e.g. 1500" min="0"
+                                       class="w-full bg-black border border-lime-500 p-3 text-lime-400 placeholder-lime-400/30 focus:outline-none text-xs tracking-widest">
+                            </div>
+                            <div>
+                                <label class="block text-xs opacity-50 tracking-widest mb-2">MAX PRICE (optional)</label>
+                                <input type="number" id="inv-custom-hi" placeholder="e.g. 2000" min="0"
+                                       class="w-full bg-black border border-lime-500/50 p-3 text-lime-400 placeholder-lime-400/30 focus:outline-none text-xs tracking-widest">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-xs opacity-50 tracking-widest mb-2">SERVICE LABEL</label>
+                            <input type="text" id="inv-custom-label" placeholder="e.g. Custom Web Project"
+                                   class="w-full bg-black border border-lime-500/50 p-3 text-lime-400 placeholder-lime-400/30 focus:outline-none text-xs tracking-widest">
+                        </div>
+                    </div>
+
+                    <!-- Client details -->
+                    <div class="bg-zinc-900 border border-lime-500/30 p-6 rounded-2xl">
+                        <div class="text-xs tracking-widest mb-4 opacity-50">CLIENT DETAILS</div>
+                        <div class="space-y-4">
+                            <input type="text" id="inv-name" placeholder="CLIENT NAME / COMPANY" autocomplete="name"
+                                   class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                            <input type="email" id="inv-email" placeholder="CLIENT EMAIL" autocomplete="email"
+                                   class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                            <input type="text" id="inv-project" placeholder="PROJECT NOTES (optional)" autocomplete="off"
+                                   class="w-full bg-black border border-lime-500/50 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
+                        </div>
+                    </div>
+
+                    <button onclick="openAdminInvoice()"
+                            class="w-full py-4 bg-lime-500 text-black font-bold hover:bg-lime-400 transition-all text-sm tracking-widest">
+                        GENERATE &amp; PRINT INVOICE &#x2192;
+                    </button>
+
+                </div>
+
+            </div><!-- /panel-invoice -->
+
+        </div><!-- /dashboard -->
+
+    </div><!-- /pt-24 container -->
 
     <!-- CONFIRM MODAL -->
     <div id="confirm-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
@@ -148,6 +240,19 @@
         const GH_REPO  = 'unwrenchable.github.io';
         const GH_LABEL = 'contact-form';
         const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`;
+
+        // ── GOOGLE SIGN-IN CONFIG ──────────────────────────────────────────────
+        // To enable Google Sign-In:
+        //   1. Go to console.cloud.google.com and create (or select) a project.
+        //   2. Navigate to APIs & Services → Credentials.
+        //   3. Click "Create Credentials" → OAuth 2.0 Client ID → Web application.
+        //   4. Under "Authorized JavaScript origins" add:
+        //        https://unwrenchable.github.io   (and http://localhost for local testing)
+        //   5. Copy the Client ID and paste it as GOOGLE_CLIENT_ID below.
+        //   6. Add your Gmail address to ADMIN_GOOGLE_EMAILS below.
+        // Leave GOOGLE_CLIENT_ID as an empty string to hide the Google button entirely.
+        const GOOGLE_CLIENT_ID    = ''; // e.g. '123456789-abc.apps.googleusercontent.com'
+        const ADMIN_GOOGLE_EMAILS = []; // e.g. ['you@gmail.com']
 
         // ── PASSWORD AUTHENTICATION ────────────────────────────────────────────
         // NOTE: This is a client-side-only password check suitable for a static
@@ -181,21 +286,73 @@
             }
         }
 
+        // ── GOOGLE SIGN-IN ─────────────────────────────────────────────────────
+        function b64urlDecode(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            return atob(str);
+        }
+
+        function handleGoogleCredential(response) {
+            try {
+                const payload = JSON.parse(b64urlDecode(response.credential.split('.')[1]));
+                if (ADMIN_GOOGLE_EMAILS.includes(payload.email)) {
+                    sessionStorage.setItem(SESSION_KEY, '1');
+                    sessionStorage.setItem('admin_google_name', payload.name || payload.email);
+                    showDashboard();
+                } else {
+                    const err = document.getElementById('login-err');
+                    err.textContent = 'GOOGLE ACCOUNT NOT AUTHORIZED';
+                    err.classList.remove('hidden');
+                    setTimeout(() => err.classList.add('hidden'), 4000);
+                }
+            } catch {
+                // ignore malformed credential
+            }
+        }
+
+        function initGoogleSignIn() {
+            if (!GOOGLE_CLIENT_ID || !window.google) return;
+            document.getElementById('google-signin-wrap').classList.remove('hidden');
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleCredential,
+                auto_select: true,
+            });
+            google.accounts.id.renderButton(
+                document.getElementById('google-signin-btn'),
+                { theme: 'outline', size: 'large', shape: 'rectangular', width: 280 }
+            );
+            google.accounts.id.prompt();
+        }
+
         function logout() {
             sessionStorage.removeItem(SESSION_KEY);
             sessionStorage.removeItem(PAT_KEY);
+            sessionStorage.removeItem('admin_google_name');
             document.getElementById('dashboard').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('logout-btn').classList.add('hidden');
             document.getElementById('admin-pw').value = '';
             document.getElementById('admin-pat').value = '';
+            if (window.google) google.accounts.id.cancel();
         }
 
         function showDashboard() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
+            setAdminTab('messages');
             loadMessages();
+            initInvoicePanel();
+        }
+
+        // ── ADMIN PANEL TABS ───────────────────────────────────────────────────
+        function setAdminTab(tab) {
+            ['messages', 'invoice'].forEach(t => {
+                document.getElementById('panel-' + t).classList.toggle('hidden', t !== tab);
+                document.getElementById('atab-' + t).classList.toggle('active', t === tab);
+            });
         }
 
         // Auto-login if session is still active
@@ -409,6 +566,159 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
         }
+
+        // ── INVOICE GENERATOR ─────────────────────────────────────────────────
+
+        const DEPOSIT_PERCENTAGE = 0.5; // 50% upfront deposit
+
+        const INV_PACKAGES = [
+            { id: 'starter',    label: 'Launch Pad Starter',               price: 750,   priceMax: 950   },
+            { id: 'web-basic',  label: 'Website Design \u2013 Basic',       price: 1800,  priceMax: 2800  },
+            { id: 'web-std',    label: 'Website Design \u2013 Standard',    price: 3500,  priceMax: 5500  },
+            { id: 'web-prem',   label: 'Website Design \u2013 Premium',     price: 6500,  priceMax: 9500  },
+            { id: 'app-basic',  label: 'Full Stack App \u2013 Starter',     price: 5000,  priceMax: 8000  },
+            { id: 'app-std',    label: 'Full Stack App \u2013 Standard',    price: 9000,  priceMax: 16000 },
+            { id: 'game-bp',    label: 'Game / Interactive \u2013 Blueprint', price: 2000, priceMax: 3500  },
+            { id: 'custom',     label: 'Custom',                            price: 0,     priceMax: 0     },
+        ];
+
+        let selectedInvPkg = INV_PACKAGES[0];
+        const INV_START = 1000;
+        let invSeq = parseInt(localStorage.getItem('invSeq') || INV_START, 10);
+
+        function initInvoicePanel() {
+            const list = document.getElementById('inv-pkg-list');
+            if (list.children.length > 0) return; // already rendered
+            list.innerHTML = INV_PACKAGES.map((pkg, i) => `
+                <button type="button" onclick="selectInvPkg(${i})" id="inv-pkg-${i}"
+                        class="pkg-radio w-full text-left text-xs flex justify-between ${i === 0 ? 'selected' : ''}">
+                    <span>${pkg.label}</span>
+                    <span class="text-lime-300 opacity-80">
+                        ${pkg.id === 'custom' ? 'enter price →' : '$' + pkg.price.toLocaleString() + (pkg.priceMax ? '–$' + pkg.priceMax.toLocaleString() : '')}
+                    </span>
+                </button>`
+            ).join('');
+        }
+
+        function selectInvPkg(i) {
+            selectedInvPkg = INV_PACKAGES[i];
+            INV_PACKAGES.forEach((_, j) => {
+                const b = document.getElementById('inv-pkg-' + j);
+                b.className = 'pkg-radio w-full text-left text-xs flex justify-between ' + (j === i ? 'selected' : '');
+            });
+            document.getElementById('inv-custom-price').classList.toggle('hidden', selectedInvPkg.id !== 'custom');
+        }
+
+        function openAdminInvoice() {
+            const name    = (document.getElementById('inv-name').value.trim()    || 'Client');
+            const email   = (document.getElementById('inv-email').value.trim()   || '');
+            const project = (document.getElementById('inv-project').value.trim() || '');
+
+            let pkgLabel, lo, hi;
+            if (selectedInvPkg.id === 'custom') {
+                lo       = parseInt(document.getElementById('inv-custom-lo').value, 10) || 0;
+                hi       = parseInt(document.getElementById('inv-custom-hi').value, 10) || lo;
+                pkgLabel = document.getElementById('inv-custom-label').value.trim() || 'Custom Service';
+            } else {
+                lo       = selectedInvPkg.price;
+                hi       = selectedInvPkg.priceMax || selectedInvPkg.price;
+                pkgLabel = selectedInvPkg.label;
+            }
+
+            const deposit = Math.round(lo * DEPOSIT_PERCENTAGE);
+            const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            invSeq++;
+            localStorage.setItem('invSeq', invSeq);
+            const invNum = 'INV-' + String(invSeq).padStart(4, '0');
+
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${invNum} \u2013 Unwrenchable</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; color: #111; background: #fff; padding: 48px; max-width: 800px; margin: auto; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 48px; padding-bottom: 24px; border-bottom: 3px solid #111; }
+  .brand h1 { font-size: 28px; font-weight: 900; letter-spacing: 4px; }
+  .brand p  { font-size: 11px; color: #555; margin-top: 4px; }
+  .inv-meta { text-align: right; }
+  .inv-meta .label { font-size: 28px; font-weight: 900; letter-spacing: 4px; }
+  .inv-meta p { font-size: 12px; color: #555; margin-top: 4px; }
+  .bill-to { margin-bottom: 40px; }
+  .bill-to .caption { font-size: 10px; letter-spacing: 3px; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+  .bill-to .client-name { font-size: 18px; font-weight: 700; }
+  .bill-to .client-email { font-size: 13px; color: #555; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+  th { text-align: left; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 10px 0; border-bottom: 2px solid #111; }
+  th:last-child { text-align: right; }
+  td { padding: 16px 0; font-size: 14px; border-bottom: 1px solid #eee; vertical-align: top; }
+  td:last-child { text-align: right; }
+  .note { font-size: 11px; color: #777; margin-top: 4px; }
+  tfoot td { border-bottom: none; border-top: 2px solid #111; padding-top: 14px; font-size: 14px; }
+  .deposit-row td { font-size: 13px; color: #555; padding-top: 6px; border-top: none; }
+  .total-row td { font-weight: 900; font-size: 20px; border-top: 2px solid #111; padding-top: 14px; }
+  .footer-note { margin-top: 48px; padding-top: 24px; border-top: 1px solid #ddd; font-size: 11px; color: #777; line-height: 1.8; }
+  @media print { body { padding: 24px; } @page { margin: 1cm; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <h1>UNWRENCHABLE</h1>
+      <p>Web Developer &bull; github.com/Unwrenchable</p>
+      <p>x.com/AtomicFizzCaps &bull; Messages welcome</p>
+    </div>
+    <div class="inv-meta">
+      <div class="label">INVOICE</div>
+      <p><strong>${invNum}</strong></p>
+      <p>Date: ${dateStr}</p>
+      <p>Due: Within 7 days (50% upfront deposit)</p>
+    </div>
+  </div>
+  <div class="bill-to">
+    <div class="caption">Bill To</div>
+    <div class="client-name">${escHtml(name)}</div>
+    ${email ? `<div class="client-email">${escHtml(email)}</div>` : ''}
+  </div>
+  <table>
+    <thead><tr><th>Description</th><th>Amount (USD)</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>
+          <strong>${escHtml(pkgLabel)}</strong>
+          ${project ? `<div class="note">${escHtml(project)}</div>` : ''}
+        </td>
+        <td>$${lo.toLocaleString()}${hi !== lo ? '&ndash;$' + hi.toLocaleString() : ''}</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="deposit-row"><td>50% Deposit Due Now</td><td>$${deposit.toLocaleString()}</td></tr>
+      <tr class="total-row"><td>Total Project Value</td><td>$${lo.toLocaleString()}${hi !== lo ? '&ndash;$' + hi.toLocaleString() : ''}</td></tr>
+    </tfoot>
+  </table>
+  <div class="footer-note">
+    <p><strong>Payment Terms:</strong> 50% deposit required to begin &bull; Remainder due on delivery</p>
+    <p><strong>Accepted:</strong> Credit/Debit Card &bull; Bitcoin (BTC) &bull; Ethereum / USDC &bull; Solana / USDC</p>
+    <p>Message @AtomicFizzCaps on X or open a GitHub issue to confirm payment and get started.</p>
+    <p style="margin-top:12px; font-size:10px; color:#bbb;">This invoice was generated by unwrenchable.github.io/admin &bull; ${dateStr}</p>
+  </div>
+</body>
+</html>`;
+
+            const win = window.open('', '_blank', 'width=900,height=700');
+            if (!win) {
+                alert('Invoice could not open — please allow pop-ups for this site and try again.');
+                return;
+            }
+            win.document.write(html);
+            win.document.close();
+            win.focus();
+            setTimeout(() => win.print(), 600);
+        }
     </script>
+    <!-- Google Identity Services — loaded async; initGoogleSignIn() is called via onload -->
+    <script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleSignIn()"></script>
 </body>
 </html>
