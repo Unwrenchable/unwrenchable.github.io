@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Extract issue details
         id: info
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const issue = context.payload.issue;
@@ -44,7 +44,7 @@ jobs:
             core.setOutput('message',    msg);
 
       - name: Send email notification
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@v16
         with:
           server_address: smtp.gmail.com
           server_port: 465
