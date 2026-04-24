@@ -219,7 +219,7 @@
         // Fetch all contact-form issues (open = unread, closed = read)
         async function fetchIssues(state) {
             const url = `${GH_API}/issues?labels=${encodeURIComponent(GH_LABEL)}&state=${state}&per_page=100`;
-            const res = await fetch(url, { headers: ghHeaders() });
+            const res = await fetch(url, { headers: ghHeaders(true) });
             if (!res.ok) throw new Error(`GitHub API ${res.status}`);
             return res.json();
         }
