@@ -1,0 +1,68 @@
+# Sends an email whenever a new contact-form issue is opened.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   EMAIL_USERNAME  — your Gmail address (or other SMTP sender address)
+#   EMAIL_PASSWORD  — Gmail App Password (NOT your regular password)
+#                     Generate at: https://myaccount.google.com/apppasswords
+#   NOTIFY_EMAIL    — the address that receives the notification
+#                     (can be the same as EMAIL_USERNAME)
+#
+# Gmail SMTP is used by default. If you use another provider, update
+# the server_address / server_port fields below.
+
+name: Contact Form Notification
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  notify:
+    if: github.event.label.name == 'contact-form'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+
+    steps:
+      - name: Extract issue details
+        id: info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body  = issue.body || '';
+
+            const nameMatch  = body.match(/^\*\*Name:\*\*\s*(.+)$/m);
+            const emailMatch = body.match(/^\*\*Email:\*\*\s*(.+)$/m);
+            const parts      = body.split(/^---$/m);
+            const msg        = parts.length > 1 ? parts.slice(1).join('---').trim() : body.trim();
+
+            core.setOutput('title',      issue.title);
+            core.setOutput('url',        issue.html_url);
+            core.setOutput('sender_name',  nameMatch  ? nameMatch[1].trim()  : 'Anonymous');
+            core.setOutput('sender_email', emailMatch ? emailMatch[1].trim() : '(not provided)');
+            core.setOutput('message',    msg);
+
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "[Unwrenchable] New contact form message from ${{ steps.info.outputs.sender_name }}"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: Unwrenchable Site <${{ secrets.EMAIL_USERNAME }}>
+          body: |
+            You have a new contact form submission on unwrenchable.github.io.
+
+            Name:    ${{ steps.info.outputs.sender_name }}
+            Email:   ${{ steps.info.outputs.sender_email }}
+
+            Message:
+            ${{ steps.info.outputs.message }}
+
+            ---
+            View on GitHub: ${{ steps.info.outputs.url }}
+            Manage in admin panel: https://unwrenchable.github.io/admin.html
