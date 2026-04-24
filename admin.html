@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
     <title>Admin — Unwrenchable</title>
     <link rel="stylesheet" href="assets/css/tailwind.min.css">
     <link rel="stylesheet" href="assets/css/press-start-2p.css">
@@ -44,9 +45,9 @@
                     <h1 class="text-2xl neon-text mb-2 text-center">ADMIN</h1>
                     <p class="text-xs opacity-40 text-center mb-8 tracking-widest">RESTRICTED ACCESS</p>
                     <form id="login-form" class="space-y-5" onsubmit="doLogin(event)">
-                        <input type="password" id="admin-pw" placeholder="PASSWORD"
+                        <input type="password" id="admin-pw" placeholder="PASSWORD" autocomplete="current-password"
                                class="w-full bg-black border border-lime-500 p-4 text-lime-400 placeholder-lime-400/50 focus:outline-none text-xs tracking-widest">
-                        <input type="password" id="admin-pat" placeholder="GITHUB PAT (to manage)"
+                        <input type="password" id="admin-pat" placeholder="GITHUB PAT (to manage)" autocomplete="off"
                                class="w-full bg-black border border-lime-500/50 p-4 text-lime-400 placeholder-lime-400/30 focus:outline-none text-xs tracking-widest">
                         <p class="text-xs opacity-30 tracking-widest -mt-2">PAT optional — read-only without it</p>
                         <button type="submit"
@@ -218,7 +219,7 @@
         // Fetch all contact-form issues (open = unread, closed = read)
         async function fetchIssues(state) {
             const url = `${GH_API}/issues?labels=${encodeURIComponent(GH_LABEL)}&state=${state}&per_page=100`;
-            const res = await fetch(url, { headers: ghHeaders() });
+            const res = await fetch(url, { headers: ghHeaders(true) });
             if (!res.ok) throw new Error(`GitHub API ${res.status}`);
             return res.json();
         }
