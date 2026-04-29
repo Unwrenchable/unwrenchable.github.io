@@ -210,12 +210,16 @@ The `.github` directory (workflows, README) is intentionally excluded from the d
 3. Go to **Project Settings → Environment Variables** and add:
    | Variable | Value |
    |----------|-------|
-   | `GITHUB_PAT` | A fine-grained PAT with Issues: Read & Write on this repo |
+   | `GITHUB_PAT` | A fine-grained PAT with **Issues: Read & Write** AND **Contents: Read & Write** on this repo |
+
+   > ⚠️ **Both permissions are required.** `Issues: Read & Write` creates the contact-form issue. `Contents: Read & Write` uploads file attachments to the `uploads/` folder via the GitHub Contents API. If you only grant Issues permission, attachment uploads will silently fail and the issue body will show `_(upload failed)_`.
 4. Redeploy — the route is now live at `https://<your-vercel-app>.vercel.app/api/contact`
 
 ### Route behaviour
 
-- Accepts `POST` with JSON body `{ name, email, message }`
+- Accepts `POST` with JSON body `{ name, email, message, file? }`
+  - `file` is optional: `{ name: string, type: string, data: base64string }`
+- If a file is provided, uploads it to `uploads/` in the repository via the GitHub Contents API, then links it in the issue body
 - Creates a GitHub Issue with the `contact-form` label
 - Returns `{ success: true, issueUrl: "..." }` on success
 - Returns an appropriate HTTP error status on failure
@@ -227,11 +231,21 @@ The `.github` directory (workflows, README) is intentionally excluded from the d
 ## 8. How the Contact Form Works End-to-End
 
 ```
-Visitor fills in form → JS collects name / email / message
-  → POST https://api.github.com/repos/Unwrenchable/unwrenchable.github.io/issues
-     Authorization: Bearer <FORM_TOKEN injected at build time>
-     Body: { title: "[Contact Form] <name>", body: "...", labels: ["contact-form"] }
-  → Issue created in this repo
+Visitor fills in form → JS collects name / email / message / optional file
+  → (optional) FileReader encodes attachment as base64
+  → POST https://unwrenchable-github-io.vercel.app/api/contact
+     Body: { name, email, message, file?: { name, type, data } }
+
+  Inside the Vercel function:
+    ① If a file is attached:
+         PUT https://api.github.com/repos/Unwrenchable/unwrenchable.github.io/contents/uploads/<timestamp>-<rand>-<filename>
+         Authorization: Bearer GITHUB_PAT  (needs Contents: Read & Write)
+         → File stored in the repo; HTML URL added to issue body
+    ② POST https://api.github.com/repos/Unwrenchable/unwrenchable.github.io/issues
+         Authorization: Bearer GITHUB_PAT  (needs Issues: Read & Write)
+         Body: { title: "[Contact Form] <name>", body: "...", labels: ["contact-form"] }
+         → Issue created
+
   → Issue gets "contact-form" label
   → contact-form-notify.yml fires (if email secrets are set)
   → Email sent to NOTIFY_EMAIL
@@ -261,6 +275,25 @@ Open the browser console (F12 → Console) and look for the API response.
 | `404 Not Found` | Wrong repo name in the API URL | Check `api/contact.js` and the inline fetch in `index.html` |
 | `422 Unprocessable Entity` | `contact-form` label doesn't exist | Complete [step 3a](#3a-create-the-contact-form-label) |
 | `CORS error` | Only happens when testing locally | Use a local server (`python3 -m http.server`) or test on the deployed site |
+
+---
+
+### Attachment upload fails — issue body shows `_(upload failed)_`
+
+The contact form issue is created but the attached file is not stored and the issue body contains `_(upload failed)_`.
+
+**Cause:** The `GITHUB_PAT` Vercel environment variable does not have `Contents: Read & Write` permission. Attachment uploads use the GitHub Contents API, which is a separate permission from `Issues: Read & Write`.
+
+**Fix:**
+1. Go to **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**
+2. Either edit the existing `GITHUB_PAT` token or generate a new one
+3. Under **Repository permissions** for `unwrenchable.github.io`, set **both**:
+   - **Issues**: Read & Write
+   - **Contents**: Read & Write
+4. Copy the (new) token
+5. Go to your Vercel project → **Settings → Environment Variables**
+6. Update `GITHUB_PAT` with the new token value
+7. **Redeploy** the Vercel project so the new environment variable takes effect
 
 ---
 

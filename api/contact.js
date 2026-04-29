@@ -1,7 +1,12 @@
 // Vercel API route for contact form submissions
 // Deploys to https://your-vercel-app.vercel.app/api/contact
 // Set GITHUB_PAT environment variable in Vercel dashboard
-// The PAT needs: public_repo scope (same scope used for issue creation)
+//
+// Fine-grained PAT — required Repository permissions:
+//   • Issues:   Read & Write   (create contact-form issues)
+//   • Contents: Read & Write   (upload file attachments to the uploads/ folder)
+//
+// Classic PAT — minimum scope: repo  (public_repo is NOT sufficient for Contents writes)
 
 const GITHUB_HEADERS = {
   'Accept': 'application/vnd.github+json',
@@ -99,3 +104,13 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+// Raise Vercel's bodyParser limit so that a ~3 MB file (≈4 MB in base64) fits
+// within the JSON body alongside the other fields.
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '5mb',
+    },
+  },
+};
